@@ -50,7 +50,6 @@ pub fn get_tasks_by_category(db: &Database, category: i64) -> sqlite::Result<Vec
     stmt.bind(1, category)?;
     let mut results: Vec<String> = Vec::new();
     while let State::Row = stmt.next()? {
-        let mut s = String::new();
         let id: i64 = stmt.read::<i64>(0)?;
         // s.push(id);
         // s.push(stmt.read::<String>(1)?);
@@ -67,7 +66,6 @@ pub fn get_task_by_status(db: &Database, status: i64) -> sqlite::Result<Vec<Stri
     stmt.bind(1, status)?;
     let mut results: Vec<String> = Vec::new();
     while let State::Row = stmt.next()? {
-        let mut s = String::new();
         let id: i64 = stmt.read::<i64>(0)?;
         // s.push(id);
         // s.push(stmt.read::<String>(1)?);
@@ -84,7 +82,6 @@ pub fn get_task_title(db: &Database, title: String) -> sqlite::Result<Vec<String
     stmt.bind(1, title.as_str())?;
     let mut results: Vec<String> = Vec::new();
     while let State::Row = stmt.next()? {
-        let mut s = String::new();
         let id: i64 = stmt.read::<i64>(0)?;
         // s.push(id);
         // s.push(stmt.read::<String>(1)?);
@@ -100,7 +97,6 @@ pub fn get_task_list(db: &Database) -> sqlite::Result<Vec<String>, > {
         .prepare("select ID, TASK from tasks;")?;
     let mut results: Vec<String> = Vec::new();
     while let State::Row = stmt.next()? {
-        let mut s = String::new();
         let id: i64 = stmt.read::<i64>(0)?;
         // s.push(id);
         // s.push(stmt.read::<String>(1)?);

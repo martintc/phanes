@@ -23,7 +23,7 @@ pub fn run () {
         } else if choice == 2 {
             manage_tasks();
         } else if choice == 3 {
-            // TODO
+            display_category_menu();
         } else if choice == 4 {
             return;
         }
@@ -108,14 +108,15 @@ fn display_category_menu() {
     println!("Options for managing categores:");
     println!("\t1. Add a category");
     println!("\t2. Delete a category");
-    println!("\t3. List categories")
+    println!("\t3. List categories");
+    println!("\t4. Return to main menu");
 
-    let choice : i64 = match get_number_option() {
+    let choice : i64 = match ask_question_number("Select an option [0-4]") {
         Some(i) => {
             if i < 1 {
                 println!("Error: Invalid number");
                 return;
-            } else if i > 3 {
+            } else if i > 4 {
                 println!("Error: Invalid number");
                 return;
             }
@@ -129,13 +130,28 @@ fn display_category_menu() {
 
     match choice {
         1 => {
-
+            match ask_question("Enter a name for category: ") {
+                Some(title) => {
+                    match category::add_category(&Database::new("/Users/toddmartin/Projects/phanes/phanes/src/data/data.db".to_string()), title) {
+                        Ok(_) => println!("Category added."),
+                        Err(e) => println!("{:?}", e),
+                    }
+                },
+                None => println!("Not a valid input"),
+            }
         },
         2 => {
 
         },
         3 => {
-            category::get_all_categories();
+            match category::get_all_categories(&Database::new("/Users/toddmartin/Projects/phanes/phanes/src/data/data.db".to_string())) {
+                Ok(results) => {
+                    for i in results.iter() {
+                        println!("{i}");
+                    }
+                },
+                Err(_) => println!("Error: Could not get all categories"),
+            }
         },
         _ =>return,
     }
@@ -194,9 +210,9 @@ fn manage_tasks() {
         4 => { // Move task to closed
             match ask_question_number("Enter ID of task to move to closed:") {
                 Some(i) => {
-                    match task::change_task_status(&Database::new("../data/data.db".to_string()), i, 3) {
+                    match task::change_task_status(&Database::new("/Users/toddmartin/Projects/phanes/phanes/src/data/data.db".to_string()), i, 3) {
                         Ok(_) => println!("Success, task moved to closed"),
-                        Err(_) => println!("Error, task not able to move to closed"),
+                        Err(e) => println!("{:?}", e),
                     }
                 },
                 None => return,
@@ -265,8 +281,8 @@ fn ask_question(question: &str) -> Option<String> {
 fn get_string_input() -> Option<String> {
     let mut input: String = String::new();
     match io::stdin().read_line(&mut input) {
-        Ok(s) => {
-            return Some(input)
+        Ok(_) => {
+            return Some(input.trim().to_string())
         },
         Err(_e) =>  {
             println!("Input invalid.");
