@@ -1,6 +1,9 @@
+use menu::Menu;
+
 mod menu;
 mod datamanager;
 
 fn main() {
-    menu::run();
+    let menu = Menu::new();
+    menu.run();
 }

@@ -2,9 +2,14 @@ pub struct Database {
     path: String,
 }
 
+
+
 impl Database {
-    pub fn create_new_db(path: String) -> sqlite::Result<String, > {
-        let connection = sqlite::open(path)?;
+    pub fn create_new_db(path: String) -> sqlite::Result<Database, > {
+        let db = Database {
+            path: path
+        };
+        let connection = sqlite::open(&db.path)?;
         let mut stmt = connection
             .prepare("CREATE TABLE tasks(ID INTEGER PRIMARY KEY, TITLE TEXT, DESCRIPTION TEXT, STATUS INTEGER, CATEGORY INTEGER);")?;
         stmt.next()?;
@@ -14,7 +19,7 @@ impl Database {
         stmt = connection
             .prepare("CREATE TABLE status(ID INTEGER KEY, STATUS TEXT);")?;
         stmt.next()?;
-        Ok(String::from("Database  created"))
+        Ok(db)
     }
 
     pub fn new(path: String) -> Self {
