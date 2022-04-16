@@ -3,6 +3,24 @@ use std::vec::Vec;
 
 use crate::datamanager::db::Database;
 
+pub struct Task {
+    id: i64,
+    title: String,
+    description: String,
+    status: i64,
+    category: i64,
+}
+
+impl Task {
+    pub fn print_task(&self) {
+        println!("Id: {} Title: {}", self.id, self.title);
+        println!("\tDescription: {}", self.description);
+        println!("\tStatus: {}", self.status);
+        println!("\tCategory: {}", self.category);
+    }
+}
+
+
 pub fn add_tasks(db: &Database, title: String, desc: String, status: i64, category: i64) -> sqlite::Result<String, > {
     let connection = sqlite::open(db.get_path())?;
     let mut stmt = connection.prepare("insert into tasks(TITLE, DESCRIPTION, STATUS, CATEGORY) values(?, ?, ?, ?);")?;
@@ -46,7 +64,7 @@ pub fn remove_task(db: &Database, id: i64) -> sqlite::Result<String, > {
 pub fn get_tasks_by_category(db: &Database, category: i64) -> sqlite::Result<Vec<String>, > {
     let connection = sqlite::open(db.get_path())?;
     let mut stmt = connection
-        .prepare("select ID, TASK from tasks where CATEGORY=?;")?;
+        .prepare("select ID, TITLE, DESCRIPTION, STATUS, CATEGORY from tasks where CATEGORY=?;")?;
     stmt.bind(1, category)?;
     let mut results: Vec<String> = Vec::new();
     while let State::Row = stmt.next()? {
@@ -78,7 +96,7 @@ pub fn get_task_by_status(db: &Database, status: i64) -> sqlite::Result<Vec<Stri
 pub fn get_task_title(db: &Database, title: String) -> sqlite::Result<Vec<String>, > {
     let connection = sqlite::open(db.get_path())?;
     let mut stmt = connection
-        .prepare("select ID, TASK from tasks where Title=?;")?;
+        .prepare("select ID, TITLE from tasks where Title=?;")?;
     stmt.bind(1, title.as_str())?;
     let mut results: Vec<String> = Vec::new();
     while let State::Row = stmt.next()? {
@@ -94,7 +112,7 @@ pub fn get_task_title(db: &Database, title: String) -> sqlite::Result<Vec<String
 pub fn get_task_list(db: &Database) -> sqlite::Result<Vec<String>, > {
     let connection = sqlite::open(db.get_path())?;
     let mut stmt = connection
-        .prepare("select ID, TASK from tasks;")?;
+        .prepare("select ID, TITLE from tasks;")?;
     let mut results: Vec<String> = Vec::new();
     while let State::Row = stmt.next()? {
         let id: i64 = stmt.read::<i64>(0)?;
@@ -104,4 +122,20 @@ pub fn get_task_list(db: &Database) -> sqlite::Result<Vec<String>, > {
         results.push(r);
     }
     Ok(results)
+}
+
+pub fn get_task_by_id(db: &Database, id: i64) -> sqlite::Result<Task, > {
+    let connection = sqlite::open(db.get_path())?;
+    let mut stmt = connection
+        .prepare("select ID, TITLE, DESCRIPTION, STATUS, CATEGORY from tasks where tasks.ID=?")?;
+    stmt.bind(1, id)?;
+    stmt.next()?;
+    let task: Task = Task {
+        id: stmt.read::<i64>(0)?,
+        title: stmt.read::<String>(1)?,
+        description: stmt.read::<String>(2)?,
+        status: stmt.read::<i64>(3)?,
+        category: stmt.read::<i64>(4)?,
+    };
+    Ok(task)
 }
