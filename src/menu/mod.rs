@@ -61,12 +61,13 @@ impl Menu {
         println!("\t1. See all opened tasks");
         println!("\t2. See all in-progress tasks");
         println!("\t3. See all closed tasks");
-        println!("\t4. Back to main menu");
+        println!("\t4. See all information for a task by ID");
+        println!("\t5. Back to main menu");
 
         let input = Menu::get_number_option();
         let choice = match input {
             Some(i) => {
-                if i > 4 {
+                if i > 5 {
                     return;
                 }
                 if i < 0 {
@@ -79,7 +80,6 @@ impl Menu {
 
         // TODO: Need to work out returning query results
         match choice {
-            4 => return,
             1 => {
                 // see all opened tasks
                 match task::get_task_by_status(&self.db, 1) {
@@ -107,6 +107,22 @@ impl Menu {
                 }
                 Err(e) => println!("{:?}", e),
             }, // See all closed tasks
+            4 => {
+                let id = match Menu::ask_question_number("Enter a task ID: ") {
+                    Some(i) => i,
+                    None => return,
+                };
+                match task::get_task_by_id(&self.db, id) {
+                    Ok(t) => {
+                        t.print_task();
+                    },
+                    Err(_) => {
+                        println!("An error occured fetch task with id: {}", id);
+                        return;
+                    }
+                };
+
+            },
             _ => {
                 // return
                 println!("Not a valid option");
