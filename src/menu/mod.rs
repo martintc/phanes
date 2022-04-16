@@ -8,7 +8,6 @@ pub struct Menu {
 }
 
 impl Menu {
-
     pub fn new() -> Menu {
         Menu {
             db: Menu::get_database(),
@@ -115,14 +114,13 @@ impl Menu {
                 match task::get_task_by_id(&self.db, id) {
                     Ok(t) => {
                         t.print_task();
-                    },
+                    }
                     Err(_) => {
                         println!("An error occured fetch task with id: {}", id);
                         return;
                     }
                 };
-
-            },
+            }
             _ => {
                 // return
                 println!("Not a valid option");
@@ -207,12 +205,10 @@ impl Menu {
             2 => {
                 // Delete a task
                 match Menu::ask_question_number("Enter ID of task to delete:") {
-                    Some(i) => {
-                        match task::remove_task(&self.db, i) {
-                            Ok(_) => println!("Success, task removed!"),
-                            Err(_) => println!("Task not able to be removed"),
-                        }
-                    }
+                    Some(i) => match task::remove_task(&self.db, i) {
+                        Ok(_) => println!("Success, task removed!"),
+                        Err(_) => println!("Task not able to be removed"),
+                    },
                     None => return,
                 };
             }
@@ -238,15 +234,16 @@ impl Menu {
             }
             5 => {
                 // asign task a category
-                let task_id = match Menu::ask_question_number("Enter ID of a task to assign a category:")
+                let task_id =
+                    match Menu::ask_question_number("Enter ID of a task to assign a category:") {
+                        Some(i) => i,
+                        None => {
+                            println!("Not a valid input");
+                            return;
+                        }
+                    };
+                let category_id = match Menu::ask_question_number("Enter a category to assign to:")
                 {
-                    Some(i) => i,
-                    None => {
-                        println!("Not a valid input");
-                        return;
-                    }
-                };
-                let category_id = match Menu::ask_question_number("Enter a category to assign to:") {
                     Some(i) => i,
                     None => {
                         println!("Not a valid input");

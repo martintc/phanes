@@ -1,7 +1,7 @@
 use menu::Menu;
 
-mod menu;
 mod datamanager;
+mod menu;
 
 fn main() {
     let menu = Menu::new();
