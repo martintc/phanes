@@ -167,7 +167,7 @@ impl Menu {
             3 => match category::get_all_categories(&self.db) {
                 Ok(results) => {
                     for i in results.iter() {
-                        println!("{i}");
+                        i.print_category();
                     }
                 }
                 Err(_) => println!("Error: Could not get all categories"),
@@ -288,7 +288,7 @@ impl Menu {
                 "y" => match Menu::ask_question("Provide a new path:") {
                     Some(path) => match Database::create_new_db(path) {
                         Ok(db) => return db,
-                        Err(_) => panic!(),
+                        Err(e) => panic!("{:?}", e),
                     },
                     None => {
                         panic!()

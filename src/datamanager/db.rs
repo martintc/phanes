@@ -19,6 +19,18 @@ impl Database {
         stmt = connection
             .prepare("CREATE TABLE status(ID INTEGER KEY, STATUS TEXT);")?;
         stmt.next()?;
+        stmt = connection
+            .prepare("insert into status values(1, 'open')")?;
+        stmt.next()?;
+        stmt = connection
+            .prepare("insert into status values(2, 'in-progress')")?;
+        stmt.next()?;
+        stmt = connection
+            .prepare("insert into status values(3, 'closed')")?;
+        stmt.next()?;
+        stmt = connection
+            .prepare("insert into category values(1, 'none')")?;
+        stmt.next()?;
         Ok(db)
     }
 
