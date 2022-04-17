@@ -14,13 +14,13 @@ impl Database {
         stmt.next()?;
         stmt = connection.prepare("CREATE TABLE status(ID INTEGER KEY, STATUS TEXT);")?;
         stmt.next()?;
-        stmt = connection.prepare("insert into status values(1, 'open')")?;
+        stmt = connection.prepare("insert into status(STATUS) values('open')")?;
         stmt.next()?;
-        stmt = connection.prepare("insert into status values(2, 'in-progress')")?;
+        stmt = connection.prepare("insert into status(STATUS) values('in-progress')")?;
         stmt.next()?;
-        stmt = connection.prepare("insert into status values(3, 'closed')")?;
+        stmt = connection.prepare("insert into status(STATUS) values('closed')")?;
         stmt.next()?;
-        stmt = connection.prepare("insert into category values(1, 'none')")?;
+        stmt = connection.prepare("insert into category(NAME) values('none')")?;
         stmt.next()?;
         Ok(db)
     }
