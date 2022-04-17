@@ -11,7 +11,7 @@ pub struct Category {
 impl Category {
     pub fn print_category(&self) {
         println!("ID: {}", self.id);
-        println!("\tName: {}", self.id);
+        println!("\tName: {}", self.name);
     }
 }
 
