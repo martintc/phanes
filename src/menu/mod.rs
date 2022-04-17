@@ -114,13 +114,13 @@ impl Menu {
                 match task::get_task_by_id(&self.db, id) {
                     Ok(t) => {
                         t.print_task();
-                    }
+                    },
                     Err(_) => {
                         println!("An error occured fetch task with id: {}", id);
                         return;
                     }
                 };
-            }
+            },
             _ => {
                 // return
                 println!("Not a valid option");

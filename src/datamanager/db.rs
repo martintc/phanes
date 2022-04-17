@@ -22,6 +22,18 @@ impl Database {
         stmt.next()?;
         stmt = connection.prepare("insert into category(NAME) values('none')")?;
         stmt.next()?;
+        stmt = connection
+            .prepare("insert into status values(1, 'open')")?;
+        stmt.next()?;
+        stmt = connection
+            .prepare("insert into status values(2, 'in-progress')")?;
+        stmt.next()?;
+        stmt = connection
+            .prepare("insert into status values(3, 'closed')")?;
+        stmt.next()?;
+        stmt = connection
+            .prepare("insert into category values(1, 'none')")?;
+        stmt.next()?;
         Ok(db)
     }
 

@@ -97,7 +97,8 @@ pub fn get_task_by_status(db: &Database, status: i64) -> sqlite::Result<Vec<Stri
 
 pub fn get_task_title(db: &Database, title: String) -> sqlite::Result<Vec<String>> {
     let connection = sqlite::open(db.get_path())?;
-    let mut stmt = connection.prepare("select ID, TITLE from tasks where Title=?;")?;
+    let mut stmt = connection
+        .prepare("select ID, TITLE from tasks where Title=?;")?;
     stmt.bind(1, title.as_str())?;
     let mut results: Vec<String> = Vec::new();
     while let State::Row = stmt.next()? {
@@ -112,7 +113,8 @@ pub fn get_task_title(db: &Database, title: String) -> sqlite::Result<Vec<String
 
 pub fn get_task_list(db: &Database) -> sqlite::Result<Vec<String>> {
     let connection = sqlite::open(db.get_path())?;
-    let mut stmt = connection.prepare("select ID, TITLE from tasks;")?;
+    let mut stmt = connection
+        .prepare("select ID, TITLE from tasks;")?;
     let mut results: Vec<String> = Vec::new();
     while let State::Row = stmt.next()? {
         let id: i64 = stmt.read::<i64>(0)?;
