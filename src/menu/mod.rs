@@ -84,16 +84,16 @@ impl Menu {
                 match task::get_task_by_status(&self.db, 1) {
                     Ok(results) => {
                         for i in results.iter() {
-                            println!("{i}");
+                            i.print();
                         }
                     }
                     Err(e) => println!("{:?}", e),
                 }
-            }
+            },
             2 => match task::get_task_by_status(&self.db, 2) {
                 Ok(results) => {
                     for i in results.iter() {
-                        println!("{i}");
+                        i.print();
                     }
                 }
                 Err(e) => println!("{:?}", e),
@@ -101,9 +101,9 @@ impl Menu {
             3 => match task::get_task_by_status(&self.db, 3) {
                 Ok(result) => {
                     for i in result.iter() {
-                        println!("{i}");
+                        i.print();
                     }
-                }
+                },
                 Err(e) => println!("{:?}", e),
             }, // See all closed tasks
             4 => {
@@ -113,7 +113,7 @@ impl Menu {
                 };
                 match task::get_task_by_id(&self.db, id) {
                     Ok(t) => {
-                        t.print_task();
+                        t.print();
                     },
                     Err(_) => {
                         println!("An error occured fetch task with id: {}", id);
