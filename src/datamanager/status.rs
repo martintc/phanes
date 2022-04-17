@@ -10,7 +10,7 @@ pub struct Status {
 
 impl Status {
 	pub fn print(&self) {
-		println!("ID: {}", self.id};
+		println!("ID: {}", self.id);
 		println!("\tName: {}", self.name);
 	}
 }
@@ -32,8 +32,8 @@ pub fn get_status_id(db: &Database, name: String) -> sqlite::Result<i64> {
 }
 
 pub fn get_all_status(db: &Database) -> sqlite::Result<Vec<Status>> {
-	let connection = sqlite::open(db.get_path()?;
-	let stmt = connection
+	let connection = sqlite::open(db.get_path())?;
+	let mut stmt = connection
 		.prepare("select ID, NAME from status")?;
 	let mut result: Vec<Status> = Vec::new();
 	while let State::Row = stmt.next()? {
