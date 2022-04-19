@@ -1,5 +1,5 @@
 pub struct Database {
-    path: String,
+    pub path: String,
 }
 
 impl Database {
