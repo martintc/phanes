@@ -8,6 +8,5 @@ mod tui;
 fn main() {
     // let menu = Menu::new();
     // menu.run();
-    let tui: TUI_Instance;
-    tui.run_app();
+    tui::run_app();
 }
