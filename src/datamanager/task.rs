@@ -23,6 +23,10 @@ impl Task {
     pub fn get_task_title(&self) -> &str {
         self.title.as_str()
     }
+
+    pub fn get_task_id(&self) -> i64 {
+        self.id
+    }
 }
 
 pub fn add_tasks(
