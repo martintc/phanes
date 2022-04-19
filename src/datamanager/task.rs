@@ -19,6 +19,10 @@ impl Task {
         println!("\tStatus: {}", self.status);
         println!("\tCategory: {}", self.category);
     }
+
+    pub fn get_task_title(&self) -> &str {
+        self.title.as_str()
+    }
 }
 
 pub fn add_tasks(
