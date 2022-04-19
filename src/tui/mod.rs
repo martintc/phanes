@@ -1,6 +1,6 @@
 use std::borrow::Borrow;
 
-use cursive::views::{Button, Dialog, LinearLayout};
+use cursive::views::{Button, Dialog, LinearLayout, SelectView};
 use cursive::{Cursive, CursiveExt};
 
 use crate::datamanager::db::*;
@@ -69,4 +69,14 @@ fn view_tasks_lists(app: &mut Cursive, status: i64) {
         Ok(r) => r,
         Err(_) => panic!(),
     };
+
+    let mut selection = SelectView::new();
+    for task in results {
+        selection.add_item(task.get_task_title(), task.get_task_id());
+    }
+    app.add_layer(Dialog::around(selection).title("All Open Tasks")
+        .button("Return", |a| {
+            a.pop_layer();
+        }));
+
 }
