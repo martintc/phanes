@@ -47,13 +47,13 @@ fn view_tasks_menu(app: &mut Cursive) {
             .content(
                 LinearLayout::vertical()
                     .child(Button::new("View all Open Tasks", |a| {
-                        view_tasks_lists(a, 1);
+                        view_tasks_lists(a, 1, "Open Tasks");
                     }))
                     .child(Button::new("View all In-Process Tasks", |a| {
-                        view_tasks_lists(a, 2);
+                        view_tasks_lists(a, 2, "In-Progress Tasks");
                     }))
                     .child(Button::new("View all closed Tasks", |a| {
-                        view_tasks_lists(a, 3);
+                        view_tasks_lists(a, 3, "Closed Tasks");
                     }))
                     .child(Button::new("View Task Information", |a| {
                         println!("View tasks information")
@@ -65,7 +65,7 @@ fn view_tasks_menu(app: &mut Cursive) {
     );
 }
 
-fn view_tasks_lists(app: &mut Cursive, status: i64) {
+fn view_tasks_lists(app: &mut Cursive, status: i64, title: &str) {
     let d: &Database = app.user_data::<Database>().unwrap();
     let results: Vec<Task> = match task::get_task_by_status(d, status) {
         Ok(r) => r,
@@ -76,7 +76,7 @@ fn view_tasks_lists(app: &mut Cursive, status: i64) {
     for task in results {
         selection.add_item(task.get_task_title(), task.get_task_id());
     }
-    app.add_layer(Dialog::around(selection).title("Tasks")
+    app.add_layer(Dialog::around(selection).title(title)
         .button("Return", |a| {
             a.pop_layer();
         }));
