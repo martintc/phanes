@@ -14,6 +14,8 @@ pub fn run_app() {
         path: String::from("/Users/toddmartin/d.db"),
     });
 
+    app.add_global_callback('q', Cursive::quit);
+
     app.add_layer(
         Dialog::new().title("Phanes - Main Menu").content(
             LinearLayout::vertical()
@@ -48,10 +50,10 @@ fn view_tasks_menu(app: &mut Cursive) {
                         view_tasks_lists(a, 1);
                     }))
                     .child(Button::new("View all In-Process Tasks", |a| {
-                        println!("View all in progress")
+                        view_tasks_lists(a, 2);
                     }))
                     .child(Button::new("View all closed Tasks", |a| {
-                        println!("View all closed")
+                        view_tasks_lists(a, 3);
                     }))
                     .child(Button::new("View Task Information", |a| {
                         println!("View tasks information")
@@ -74,9 +76,8 @@ fn view_tasks_lists(app: &mut Cursive, status: i64) {
     for task in results {
         selection.add_item(task.get_task_title(), task.get_task_id());
     }
-    app.add_layer(Dialog::around(selection).title("All Open Tasks")
+    app.add_layer(Dialog::around(selection).title("Tasks")
         .button("Return", |a| {
             a.pop_layer();
         }));
-
 }
