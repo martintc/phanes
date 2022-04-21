@@ -27,6 +27,18 @@ impl Task {
     pub fn get_task_id(&self) -> i64 {
         self.id
     }
+
+    pub fn get_task_desc(&self) -> &str {
+        self.description.as_str()
+    }
+
+    pub fn get_task_status_number(&self) -> i64 {
+        self.status
+    }
+
+    pub fn get_task_category_number(&self) -> i64 {
+        self.category
+    }
 }
 
 pub fn add_tasks(
