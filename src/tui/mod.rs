@@ -1,6 +1,6 @@
 use std::borrow::Borrow;
 
-use cursive::views::{Button, Dialog, LinearLayout, SelectView};
+use cursive::views::{Button, Dialog, LinearLayout, SelectView, TextView, PaddedView, TextArea};
 use cursive::{Cursive, CursiveExt};
 
 use crate::datamanager::db::*;
@@ -76,8 +76,54 @@ fn view_tasks_lists(app: &mut Cursive, status: i64, title: &str) {
     for task in results {
         selection.add_item(task.get_task_title(), task.get_task_id());
     }
-    app.add_layer(Dialog::around(selection).title(title)
-        .button("Return", |a| {
-            a.pop_layer();
-        }));
+
+    selection.set_on_submit(|a, task| {
+        a.pop_layer();
+        view_task(a, task);
+    });
+
+    app.add_layer(
+        Dialog::around(selection)
+            .title(title)
+            .button("Return", |a| {
+                a.pop_layer();
+            }),
+    );
+}
+
+fn view_task(app: &mut Cursive, id: &i64) {
+    let d: &Database = app.user_data::<Database>().unwrap();
+    let task = match task::get_task_by_id(d, *id) {
+        Ok(task) => task,
+        Err(_) => panic!("An error occured"),
+    };
+
+    app.add_layer(
+        Dialog::new()
+            .title(task.get_task_title())
+            .content(
+            LinearLayout::vertical()
+                    .child(
+                    LinearLayout::horizontal()
+                        .child(PaddedView::lrtb(1, 7, 0, 1, TextView::new("Title:")))
+                        .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new(task.get_task_title()))),
+                    )
+                    .child(
+                        LinearLayout::horizontal()
+                        .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new("Description:")))
+                        .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new(task.get_task_desc())))
+                    )
+                    .child(LinearLayout::horizontal()
+                        .child(PaddedView::lrtb(1, 6, 0, 1, TextView::new("Status:")))
+                        .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new(task.get_task_status_number().to_string())))
+                    )
+                    .child(LinearLayout::horizontal()
+                        .child(PaddedView::lrtb(1, 5, 0, 1, TextView::new("Category")))
+                        .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new(task.get_task_category_number().to_string())))
+                    )
+            )
+            .button("Close display", |a| {
+                a.pop_layer();
+            }),
+    );
 }
