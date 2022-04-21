@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 sqlite = "0.26.0"
 cursive = "0.17.0"
+languages-rs = { version = "0.2.0", features = ["with-toml"] }
