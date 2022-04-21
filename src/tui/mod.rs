@@ -1,6 +1,4 @@
-use std::borrow::Borrow;
-
-use cursive::views::{Button, Dialog, LinearLayout, SelectView, TextView, PaddedView, TextArea};
+use cursive::views::{Button, Dialog, LinearLayout, SelectView, TextView, PaddedView};
 use cursive::{Cursive, CursiveExt};
 
 use crate::datamanager::db::*;
@@ -77,9 +75,9 @@ fn view_tasks_lists(app: &mut Cursive, status: i64, title: &str) {
         selection.add_item(task.get_task_title(), task.get_task_id());
     }
 
+
     selection.set_on_submit(|a, task| {
-        a.pop_layer();
-        view_task(a, task);
+        view_task(a, &task);
     });
 
     app.add_layer(
