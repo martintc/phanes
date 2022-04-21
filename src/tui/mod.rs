@@ -3,6 +3,7 @@ use cursive::{Cursive, CursiveExt};
 
 use crate::datamanager::db::*;
 use crate::datamanager::task::Task;
+use crate::datamanager::status;
 use crate::datamanager::*;
 
 pub fn run_app() {
@@ -96,6 +97,16 @@ fn view_task(app: &mut Cursive, id: &i64) {
         Err(_) => panic!("An error occured"),
     };
 
+    let cat_name = match category::get_category_name(d, *id) {
+        Ok(i) => i,
+        Err(_) => "None found".to_string(),
+    };
+
+    let status_name = match status::get_status_name(d, *id) {
+        Ok(i) => i,
+        Err(_) => "None designated".to_string(),
+    };
+
     app.add_layer(
         Dialog::new()
             .title(task.get_task_title())
@@ -113,11 +124,11 @@ fn view_task(app: &mut Cursive, id: &i64) {
                     )
                     .child(LinearLayout::horizontal()
                         .child(PaddedView::lrtb(1, 6, 0, 1, TextView::new("Status:")))
-                        .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new(task.get_task_status_number().to_string())))
+                        .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new(status_name)))
                     )
                     .child(LinearLayout::horizontal()
                         .child(PaddedView::lrtb(1, 5, 0, 1, TextView::new("Category")))
-                        .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new(task.get_task_category_number().to_string())))
+                        .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new(cat_name)))
                     )
             )
             .button("Close display", |a| {
