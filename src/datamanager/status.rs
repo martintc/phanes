@@ -17,7 +17,7 @@ impl Status {
 
 pub fn get_status_name(db: &Database, id: i64) -> sqlite::Result<String> {
     let connection = sqlite::open(db.get_path())?;
-    let mut stmt = connection.prepare("select NAME from status where ID=?")?;
+    let mut stmt = connection.prepare("select STATUS from status where ID=?")?;
     stmt.bind(1, id)?;
     stmt.next()?;
     Ok(stmt.read::<String>(0))?
@@ -33,7 +33,7 @@ pub fn get_status_id(db: &Database, name: String) -> sqlite::Result<i64> {
 
 pub fn get_all_status(db: &Database) -> sqlite::Result<Vec<Status>> {
     let connection = sqlite::open(db.get_path())?;
-    let mut stmt = connection.prepare("select ID, NAME from status")?;
+    let mut stmt = connection.prepare("select ID, STATUS from status")?;
     let mut result: Vec<Status> = Vec::new();
     while let State::Row = stmt.next()? {
         let s = Status {
