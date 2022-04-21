@@ -54,9 +54,6 @@ fn view_tasks_menu(app: &mut Cursive) {
                     .child(Button::new("View all closed Tasks", |a| {
                         view_tasks_lists(a, 3, "Closed Tasks");
                     }))
-                    .child(Button::new("View Task Information", |a| {
-                        println!("View tasks information")
-                    })),
             )
             .button("Return to Main Menu", |a| {
                 a.pop_layer();
