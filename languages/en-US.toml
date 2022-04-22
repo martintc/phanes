@@ -13,6 +13,11 @@ open_tasks = "Open Tasks"
 inprogress_tasks = "In-progress Tasks"
 closed_tasks = "Closed Tasks"
 
+title = "Title"
+description = "Description"
+category = "Category"
+status = "Status"
+
 return_menu = "Return to main menu"
 return = "Return"
 quit = "Quit"

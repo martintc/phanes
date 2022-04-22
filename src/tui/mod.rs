@@ -1,3 +1,5 @@
+use std::borrow::Borrow;
+
 use cursive::traits::Resizable;
 use cursive::views::{Button, Dialog, LinearLayout, SelectView, TextView, PaddedView, TextArea};
 use cursive::{Cursive, CursiveExt};
@@ -78,7 +80,7 @@ fn view_tasks_menu(app: &mut Cursive) {
                         view_tasks_lists(a, 3, "Closed Tasks");
                     }))
             )
-            .button("Return to Main Menu", |a| {
+            .button(locale.try_get_text("return_menu").unwrap().get_string().unwrap(), |a| {
                 a.pop_layer();
             }),
     );
@@ -111,6 +113,7 @@ fn view_tasks_lists(app: &mut Cursive, status: i64, title: &str) {
 }
 
 fn view_task(app: &mut Cursive, id: &i64) {
+    // let locale: &LanguageTexts = &app.user_data::<LanguageTexts>().unwrap().clone();
     let d: &Database = app.user_data::<Database>().unwrap();
     let task = match task::get_task_by_id(d, *id) {
         Ok(task) => task,
@@ -126,6 +129,11 @@ fn view_task(app: &mut Cursive, id: &i64) {
         Ok(i) => i,
         Err(_) => "None designated".to_string(),
     };
+
+    // let title: String = locale.try_get_text("title").unwrap().get_string().unwrap();
+    // let desc: String = locale.try_get_text("description").unwrap().get_string().unwrap();
+    // let status: String = locale.try_get_text("status").unwrap().get_string().unwrap();
+    // let category: String = locale.try_get_text("category").unwrap().get_string().unwrap();
 
     app.add_layer(
         Dialog::new()
@@ -147,7 +155,7 @@ fn view_task(app: &mut Cursive, id: &i64) {
                         .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new(status_name)))
                     )
                     .child(LinearLayout::horizontal()
-                        .child(PaddedView::lrtb(1, 5, 0, 1, TextView::new("Category")))
+                        .child(PaddedView::lrtb(1, 5, 0, 1, TextView::new("Category:")))
                         .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new(cat_name)))
                     )
             )
