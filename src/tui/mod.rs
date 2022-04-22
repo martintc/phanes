@@ -71,10 +71,10 @@ fn view_tasks_menu(app: &mut Cursive) {
                     .child(Button::new(locale.try_get_text("view_all_open").unwrap().get_string().unwrap(), |a| {
                         view_tasks_lists(a, 1, "Open Tasks");
                     }))
-                    .child(Button::new("View all In-Process Tasks", |a| {
+                    .child(Button::new(locale.try_get_text("view_all_in_progress").unwrap().get_string().unwrap(), |a| {
                         view_tasks_lists(a, 2, "In-Progress Tasks");
                     }))
-                    .child(Button::new("View all closed Tasks", |a| {
+                    .child(Button::new(locale.try_get_text("view_all_closed").unwrap().get_string().unwrap(), |a| {
                         view_tasks_lists(a, 3, "Closed Tasks");
                     }))
             )
