@@ -62,12 +62,13 @@ fn set_up_locale() -> LanguageTexts {
 }
 
 fn view_tasks_menu(app: &mut Cursive) {
+    let locale: &LanguageTexts = &app.user_data::<LanguageTexts>().unwrap().clone();
     app.add_layer(
         Dialog::new()
             .title("Phanes - View Tasks Menu")
             .content(
                 LinearLayout::vertical()
-                    .child(Button::new("View all Open Tasks", |a| {
+                    .child(Button::new(locale.try_get_text("view_all_open").unwrap().get_string().unwrap(), |a| {
                         view_tasks_lists(a, 1, "Open Tasks");
                     }))
                     .child(Button::new("View all In-Process Tasks", |a| {

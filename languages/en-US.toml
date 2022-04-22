@@ -9,6 +9,10 @@ view_all_in_progress = "View all in-progress tasks"
 view_all_closed = "View all closed tasks"
 view_task_info = "View task information"
 
+open_tasks = "Open Tasks"
+inprogress_tasks = "In-progress Tasks"
+closed_tasks = "Closed Tasks"
+
 return_menu = "Return to main menu"
 return = "Return"
 quit = "Quit"
