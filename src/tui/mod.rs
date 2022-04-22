@@ -1,4 +1,5 @@
-use cursive::views::{Button, Dialog, LinearLayout, SelectView, TextView, PaddedView};
+use cursive::traits::Resizable;
+use cursive::views::{Button, Dialog, LinearLayout, SelectView, TextView, PaddedView, TextArea};
 use cursive::{Cursive, CursiveExt};
 
 use crate::datamanager::db::*;
@@ -27,7 +28,7 @@ pub fn run_app() {
                     view_tasks_menu(a);
                 }))
                 .child(Button::new("Manage Tasks Menu", |a| {
-                    println!("Manage Tasks")
+                    view_task_manager(a);
                 }))
                 .child(Button::new("Manage Categories", |a| {
                     println!("manage Categories")
@@ -132,4 +133,61 @@ fn view_task(app: &mut Cursive, id: &i64) {
                 a.pop_layer();
             }),
     );
+}
+
+fn view_task_manager(app: &mut Cursive) {
+    app.add_layer(
+        Dialog::new()
+            .title("Phanes - View Tasks Menu")
+            .content(
+                LinearLayout::vertical()
+                    .child(Button::new("Add a Task", |a| {
+                        add_task(a);
+                    }))
+                    .child(Button::new("Delete a Task", |a| {
+                        println!("Delete a task");
+                    }))
+                    .child(Button::new("Move task to in-progress", |a| {
+                        println!("Move to in-progress");
+                    }))
+                    .child(Button::new("Move task to closed", |a| {
+                        println!("Move to closed");
+                    }))
+                    .child(Button::new("Move task to closed", |a| {
+                        println!("Assign task a category");
+                    }))
+            )
+            .button("Return to Main Menu", |a| {
+                a.pop_layer();
+            }),
+    );
+}
+
+fn add_task(app: &mut Cursive) {
+    let mut title_area: TextArea = TextArea::new();
+    let mut desc_area: TextArea = TextArea::new();
+
+    app.add_layer(
+        Dialog::new()
+            .title("Add a task")
+            .content(
+                LinearLayout::vertical()
+                    .child(
+                        LinearLayout::horizontal()
+                            .child(PaddedView::lrtb(1, 7, 0, 1, TextView::new("Title:")))
+                            .child(PaddedView::lrtb(1, 1, 0, 1, title_area))
+                    )
+                    .child(
+                        LinearLayout::horizontal()
+                            .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new("Description:")))
+                            .child(PaddedView::lrtb(1, 1, 0, 1, desc_area))
+                    )
+            )
+            .button("Return", |a| {
+                a.pop_layer();
+            })
+            .button("Submit", |a| {
+                println!("TODO");
+            }),
+    )
 }
