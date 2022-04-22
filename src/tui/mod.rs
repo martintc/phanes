@@ -2,42 +2,63 @@ use cursive::traits::Resizable;
 use cursive::views::{Button, Dialog, LinearLayout, SelectView, TextView, PaddedView, TextArea};
 use cursive::{Cursive, CursiveExt};
 
+use languages_rs::{Config, Languages, LanguageTexts, load, Value};
+
+use sys_locale::get_locale;
+
 use crate::datamanager::db::*;
 use crate::datamanager::task::Task;
 use crate::datamanager::status;
 use crate::datamanager::*;
 
 pub fn run_app() {
+    let locale = set_up_locale();
     let mut app = Cursive::default();
 
     app.set_user_data(Database {
         path: String::from("/Users/toddmartin/d.db"),
     });
 
+    app.set_user_data(locale.clone());
+
     app.add_global_callback('q', Cursive::quit);
 
     app.add_layer(
-        Dialog::new().title("Phanes - Main Menu").content(
+        Dialog::new()
+            .title(locale.try_get_text("main_title").unwrap().get_string().unwrap())
+            .content(
             LinearLayout::vertical()
                 /*
                 .child(Button::new("View Tasks Menu", |a| {
                     view_tasks_menu(a, &db.clone());
                 }))
                 */
-                .child(Button::new("View Tasks menu", |a| {
+                .child(Button::new(locale.try_get_text("view_task_menu").unwrap().get_string().unwrap(), |a| {
                     view_tasks_menu(a);
                 }))
-                .child(Button::new("Manage Tasks Menu", |a| {
+                .child(Button::new(locale.try_get_text("manage_task").unwrap().get_string().unwrap(), |a| {
                     view_task_manager(a);
                 }))
-                .child(Button::new("Manage Categories", |a| {
+                .child(Button::new(locale.try_get_text("manage_categories").unwrap().get_string().unwrap(), |a| {
                     println!("manage Categories")
                 }))
-                .child(Button::new("Quit", |a| a.quit())),
+                .child(Button::new(locale.try_get_text("quit").unwrap().get_string().unwrap(), |a| a.quit())),
         ),
     );
 
     app.run();
+}
+
+fn set_up_locale() -> LanguageTexts {
+    let locale = get_locale().unwrap();
+    let mut configuration: Config = Config::default().unwrap();
+    configuration.add_language(locale.clone()).unwrap();
+    let mut texts: Languages = load(configuration).unwrap();
+    let locale_text : LanguageTexts = match texts.try_get_language(locale.as_str()) {
+        Ok(loc) => loc,
+        Err(_) => texts.try_get_language("en-US").unwrap(),
+    };
+    locale_text
 }
 
 fn view_tasks_menu(app: &mut Cursive) {
