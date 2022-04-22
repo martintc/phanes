@@ -67,7 +67,7 @@ fn view_tasks_menu(app: &mut Cursive) {
     let locale: &LanguageTexts = &app.user_data::<LanguageTexts>().unwrap().clone();
     app.add_layer(
         Dialog::new()
-            .title("Phanes - View Tasks Menu")
+            .title(locale.try_get_text("view_tasks_title").unwrap().get_string().unwrap())
             .content(
                 LinearLayout::vertical()
                     .child(Button::new(locale.try_get_text("view_all_open").unwrap().get_string().unwrap(), |a| {
@@ -166,6 +166,7 @@ fn view_task(app: &mut Cursive, id: &i64) {
 }
 
 fn view_task_manager(app: &mut Cursive) {
+    let locale: &LanguageTexts = &app.user_data::<LanguageTexts>().unwrap().clone();
     app.add_layer(
         Dialog::new()
             .title("Phanes - View Tasks Menu")
@@ -187,7 +188,7 @@ fn view_task_manager(app: &mut Cursive) {
                         println!("Assign task a category");
                     }))
             )
-            .button("Return to Main Menu", |a| {
+            .button(locale.try_get_text("return_menu").unwrap().get_string().unwrap(), |a| {
                 a.pop_layer();
             }),
     );
