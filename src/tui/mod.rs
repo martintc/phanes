@@ -1,7 +1,7 @@
 use std::borrow::Borrow;
 
-use cursive::traits::Resizable;
-use cursive::views::{Button, Dialog, LinearLayout, SelectView, ListView, TextView, PaddedView, TextArea};
+use cursive::traits::*;
+use cursive::views::{Button, Dialog, LinearLayout, SelectView, EditView, TextView, PaddedView, TextArea};
 use cursive::{Cursive, CursiveExt};
 
 use languages_rs::{Config, Languages, LanguageTexts, load, Value};
@@ -18,15 +18,10 @@ struct Session {
     pub locale: LanguageTexts,
 }
 
+// initial entry point of graphicalk TUI application
 pub fn run_app() {
     let locale = set_up_locale();
     let mut app = Cursive::default();
-
-    /*
-    app.set_user_data(Database {
-        path: String::from("/Users/toddmartin/d.db"),
-    });
-    */
 
     let db = Database {
         path: String::from("/users/toddmartin/d.db"),
@@ -37,8 +32,6 @@ pub fn run_app() {
         locale: locale.clone(),
     });
 
-    //app.set_user_data(locale.clone());
-
     app.add_global_callback('q', Cursive::quit);
 
     app.add_layer(
@@ -46,11 +39,6 @@ pub fn run_app() {
             .title(locale.try_get_text("main_title").unwrap().get_string().unwrap())
             .content(
             LinearLayout::vertical()
-                /*
-                .child(Button::new("View Tasks Menu", |a| {
-                    view_tasks_menu(a, &db.clone());
-                }))
-                */
                 .child(Button::new(locale.try_get_text("view_task_menu").unwrap().get_string().unwrap(), |a| {
                     view_tasks_menu(a);
                 }))
@@ -136,6 +124,7 @@ fn view_tasks_lists(app: &mut Cursive, status: i64, title: &str) {
 
 fn view_task(app: &mut Cursive, id: &i64) {
     // let locale: &LanguageTexts = &app.user_data::<LanguageTexts>().unwrap().clone();
+    let locale: &LanguageTexts = &app.user_data::<Session>().unwrap().locale.clone();
     let d: &Database = &app.user_data::<Session>().unwrap().db;
     let task = match task::get_task_by_id(d, *id) {
         Ok(task) => task,
@@ -152,10 +141,10 @@ fn view_task(app: &mut Cursive, id: &i64) {
         Err(_) => "None designated".to_string(),
     };
 
-    // let title: String = locale.try_get_text("title").unwrap().get_string().unwrap();
-    // let desc: String = locale.try_get_text("description").unwrap().get_string().unwrap();
-    // let status: String = locale.try_get_text("status").unwrap().get_string().unwrap();
-    // let category: String = locale.try_get_text("category").unwrap().get_string().unwrap();
+    let title: String = locale.try_get_text("title").unwrap().get_string().unwrap();
+    let desc: String = locale.try_get_text("description").unwrap().get_string().unwrap();
+    let status: String = locale.try_get_text("status").unwrap().get_string().unwrap();
+    let category: String = locale.try_get_text("category").unwrap().get_string().unwrap();
 
     app.add_layer(
         Dialog::new()
@@ -164,20 +153,20 @@ fn view_task(app: &mut Cursive, id: &i64) {
             LinearLayout::vertical()
                     .child(
                     LinearLayout::horizontal()
-                        .child(PaddedView::lrtb(1, 7, 0, 1, TextView::new("Title:")))
+                        .child(PaddedView::lrtb(1, 7, 0, 1, TextView::new(title)))
                         .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new(task.get_task_title()))),
                     )
                     .child(
                         LinearLayout::horizontal()
-                        .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new("Description:")))
+                        .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new(desc)))
                         .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new(task.get_task_desc())))
                     )
                     .child(LinearLayout::horizontal()
-                        .child(PaddedView::lrtb(1, 6, 0, 1, TextView::new("Status:")))
+                        .child(PaddedView::lrtb(1, 6, 0, 1, TextView::new(status)))
                         .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new(status_name)))
                     )
                     .child(LinearLayout::horizontal()
-                        .child(PaddedView::lrtb(1, 5, 0, 1, TextView::new("Category:")))
+                        .child(PaddedView::lrtb(1, 5, 0, 1, TextView::new(category)))
                         .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new(cat_name)))
                     )
             )
@@ -188,7 +177,7 @@ fn view_task(app: &mut Cursive, id: &i64) {
 }
 
 fn view_task_manager(app: &mut Cursive) {
-    let locale: &LanguageTexts = &app.user_data::<LanguageTexts>().unwrap().clone();
+    let locale: &LanguageTexts = &app.user_data::<Session>().unwrap().locale.clone();
     app.add_layer(
         Dialog::new()
             .title("Phanes - View Tasks Menu")
@@ -217,8 +206,6 @@ fn view_task_manager(app: &mut Cursive) {
 }
 
 fn add_task(app: &mut Cursive) {
-    let mut title_area: TextArea = TextArea::new();
-    let mut desc_area: TextArea = TextArea::new();
 
     app.add_layer(
         Dialog::new()
@@ -228,19 +215,27 @@ fn add_task(app: &mut Cursive) {
                     .child(
                         LinearLayout::horizontal()
                             .child(PaddedView::lrtb(1, 7, 0, 1, TextView::new("Title:")))
-                            .child(PaddedView::lrtb(1, 1, 0, 1, title_area))
+                            .child(PaddedView::lrtb(1, 1, 0, 1, EditView::new().with_name("title_entry").fixed_width(20)))
                     )
                     .child(
                         LinearLayout::horizontal()
                             .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new("Description:")))
-                            .child(PaddedView::lrtb(1, 1, 0, 1, desc_area))
+                            .child(PaddedView::lrtb(1, 1, 0, 1, EditView::new().with_name("desc_entry").fixed_width(20)))
                     )
             )
             .button("Return", |a| {
                 a.pop_layer();
             })
             .button("Submit", |a| {
-                println!("TODO");
+                let title = a.call_on_name("title_entry", |view: &mut EditView| {
+                    view.get_content()
+                }).unwrap();
+                let desc = a.call_on_name("desc_entry", |view: &mut EditView| {
+                   view.get_content()
+                }).unwrap();
+                let db: &Database = &a.user_data::<Session>().unwrap().db;
+                task::add_tasks(db, title.to_string(), desc.to_string(), 1, 1);
+                a.pop_layer();
             }),
     )
 }
