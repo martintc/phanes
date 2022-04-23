@@ -1,7 +1,7 @@
 use std::borrow::Borrow;
 
 use cursive::traits::Resizable;
-use cursive::views::{Button, Dialog, LinearLayout, SelectView, TextView, PaddedView, TextArea};
+use cursive::views::{Button, Dialog, LinearLayout, SelectView, ListView, TextView, PaddedView, TextArea};
 use cursive::{Cursive, CursiveExt};
 
 use languages_rs::{Config, Languages, LanguageTexts, load, Value};
@@ -13,15 +13,31 @@ use crate::datamanager::task::Task;
 use crate::datamanager::status;
 use crate::datamanager::*;
 
+struct Session {
+    pub db: Database,
+    pub locale: LanguageTexts,
+}
+
 pub fn run_app() {
     let locale = set_up_locale();
     let mut app = Cursive::default();
 
+    /*
     app.set_user_data(Database {
         path: String::from("/Users/toddmartin/d.db"),
     });
+    */
 
-    app.set_user_data(locale.clone());
+    let db = Database {
+        path: String::from("/users/toddmartin/d.db"),
+    };
+
+    app.set_user_data(Session {
+        db: db,
+        locale: locale.clone(),
+    });
+
+    //app.set_user_data(locale.clone());
 
     app.add_global_callback('q', Cursive::quit);
 
@@ -64,33 +80,39 @@ fn set_up_locale() -> LanguageTexts {
 }
 
 fn view_tasks_menu(app: &mut Cursive) {
-    let locale: &LanguageTexts = &app.user_data::<LanguageTexts>().unwrap().clone();
+    let locale: &LanguageTexts = &app.user_data::<Session>().unwrap().locale.clone();
+    let view_open_label: String = locale.try_get_text("view_all_open").unwrap().get_string().unwrap();
+    let view_inprogress_label: String = locale.try_get_text("view_all_in_progress").unwrap().get_string().unwrap();
+    let view_closed_label: String = locale.try_get_text("view_all_closed").unwrap().get_string().unwrap();
     app.add_layer(
         Dialog::new()
             .title(locale.try_get_text("view_tasks_title").unwrap().get_string().unwrap())
             .content(
                 LinearLayout::vertical()
-                    .child(Button::new(locale.try_get_text("view_all_open").unwrap().get_string().unwrap(), |a| {
+                    .child(Button::new(view_open_label, |a| {
                         view_tasks_lists(a, 1, "Open Tasks");
                     }))
-                    .child(Button::new(locale.try_get_text("view_all_in_progress").unwrap().get_string().unwrap(), |a| {
+                    .child(Button::new(view_inprogress_label, |a| {
                         view_tasks_lists(a, 2, "In-Progress Tasks");
                     }))
-                    .child(Button::new(locale.try_get_text("view_all_closed").unwrap().get_string().unwrap(), |a| {
+                    .child(Button::new(view_closed_label, |a| {
                         view_tasks_lists(a, 3, "Closed Tasks");
                     }))
             )
-            .button(locale.try_get_text("return_menu").unwrap().get_string().unwrap(), |a| {
+            .button("Return to main menu", |a| {
                 a.pop_layer();
             }),
     );
 }
 
 fn view_tasks_lists(app: &mut Cursive, status: i64, title: &str) {
-    let d: &Database = app.user_data::<Database>().unwrap();
+    let d: &Database = match app.user_data::<Session>() {
+        Some(d) => &d.db,
+        None => panic!(),
+    };
     let results: Vec<Task> = match task::get_task_by_status(d, status) {
         Ok(r) => r,
-        Err(_) => panic!(),
+        Err(_) => panic!("Error is occuring here in view tasks list"),
     };
 
     let mut selection = SelectView::new();
@@ -98,14 +120,14 @@ fn view_tasks_lists(app: &mut Cursive, status: i64, title: &str) {
         selection.add_item(task.get_task_title(), task.get_task_id());
     }
 
-
     selection.set_on_submit(|a, task| {
         view_task(a, &task);
     });
 
     app.add_layer(
-        Dialog::around(selection)
+        Dialog::new()
             .title(title)
+            .content(selection)
             .button("Return", |a| {
                 a.pop_layer();
             }),
@@ -114,7 +136,7 @@ fn view_tasks_lists(app: &mut Cursive, status: i64, title: &str) {
 
 fn view_task(app: &mut Cursive, id: &i64) {
     // let locale: &LanguageTexts = &app.user_data::<LanguageTexts>().unwrap().clone();
-    let d: &Database = app.user_data::<Database>().unwrap();
+    let d: &Database = &app.user_data::<Session>().unwrap().db;
     let task = match task::get_task_by_id(d, *id) {
         Ok(task) => task,
         Err(_) => panic!("An error occured"),
