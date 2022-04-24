@@ -191,10 +191,10 @@ fn view_task_manager(app: &mut Cursive) {
                         delete_task_ui(a);
                     }))
                     .child(Button::new(locale.try_get_text("move_in_prog").unwrap().get_string().unwrap(), |a| {
-                        println!("Move to in-progress");
+                        move_in_prog_task_ui(a);
                     }))
                     .child(Button::new(locale.try_get_text("move_to_closed").unwrap().get_string().unwrap(), |a| {
-                        println!("Move to closed");
+                        move_closed_task_ui(a);
                     }))
                     .child(Button::new(locale.try_get_text("assign_task_cat").unwrap().get_string().unwrap(), |a| {
                         println!("Assign task a category");
@@ -278,4 +278,76 @@ fn delete_task_ui(app: &mut Cursive) {
 fn del_task(app: &mut Cursive, id: &i64) {
     let db: &Database = &app.user_data::<Session>().unwrap().db;
     task::remove_task(db, *id);
+}
+
+fn move_in_prog_task_ui(app: &mut Cursive) {
+    let locale: &LanguageTexts = &app.user_data::<Session>().unwrap().locale.clone();
+    let d: &Database = &app.user_data::<Session>().unwrap().db;
+    let tasks: Vec<Task> = match task::get_task_by_status(d, 1) {
+        Ok(list) => list,
+        Err(_) => panic!("Error fetching list of tasks"),
+    };
+
+    let mut selection = SelectView::new();
+    for task in tasks.iter() {
+        selection.add_item(task.get_task_title(), task.get_task_id());
+    }
+
+    selection.set_on_submit(|a, task| {
+        move_in_prog(a, task);
+        a.pop_layer();
+    });
+
+    app.add_layer(
+        Dialog::new()
+                  .title(locale.try_get_text("move_in_prog").unwrap().get_string().unwrap())
+                  .content(selection)
+                  .button(locale.try_get_text("return").unwrap().get_string().unwrap(), |a| {
+                      a.pop_layer();
+                  }),
+    );
+
+}
+
+
+
+fn move_in_prog(app: &mut Cursive, id: &i64) {
+    let db: &Database = &app.user_data::<Session>().unwrap().db;
+    task::change_task_status(db, *id, 2);
+}
+
+fn move_closed_task_ui(app: &mut Cursive) {
+    let locale: &LanguageTexts = &app.user_data::<Session>().unwrap().locale.clone();
+    let d: &Database = &app.user_data::<Session>().unwrap().db;
+    let tasks: Vec<Task> = match task::get_task_by_status(d, 2) {
+        Ok(list) => list,
+        Err(_) => panic!("Error fetching list of tasks"),
+    };
+
+    let mut selection = SelectView::new();
+    for task in tasks.iter() {
+        selection.add_item(task.get_task_title(), task.get_task_id());
+    }
+
+    selection.set_on_submit(|a, task| {
+        move_closed(a, task);
+        a.pop_layer();
+    });
+
+    app.add_layer(
+        Dialog::new()
+                  .title(locale.try_get_text("move_to_closed").unwrap().get_string().unwrap())
+                  .content(selection)
+                  .button(locale.try_get_text("return").unwrap().get_string().unwrap(), |a| {
+                      a.pop_layer();
+                  }),
+    );
+
+}
+
+
+
+fn move_closed(app: &mut Cursive, id: &i64) {
+    let db: &Database = &app.user_data::<Session>().unwrap().db;
+    task::change_task_status(db, *id, 3);
 }
