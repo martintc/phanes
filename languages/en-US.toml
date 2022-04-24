@@ -13,10 +13,18 @@ open_tasks = "Open Tasks"
 inprogress_tasks = "In-progress Tasks"
 closed_tasks = "Closed Tasks"
 
-title = "Title"
-description = "Description"
-category = "Category"
-status = "Status"
+add_task = "Add a task"
+del_task = "Delete a task"
+move_in_prog = "Move task to in-progress"
+move_to_closed = "Move task to closed"
+assign_task_cat = "Assign task a category"
+
+select_task = "Select a task"
+
+title = "Title:"
+description = "Description:"
+category = "Category:"
+status = "Status:"
 
 return_menu = "Return to main menu"
 return = "Return"

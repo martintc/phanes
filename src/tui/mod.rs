@@ -176,6 +176,7 @@ fn view_task(app: &mut Cursive, id: &i64) {
     );
 }
 
+// TODO: Use locales
 fn view_task_manager(app: &mut Cursive) {
     let locale: &LanguageTexts = &app.user_data::<Session>().unwrap().locale.clone();
     app.add_layer(
@@ -184,7 +185,7 @@ fn view_task_manager(app: &mut Cursive) {
             .content(
                 LinearLayout::vertical()
                     .child(Button::new("Add a Task", |a| {
-                        add_task(a);
+                        add_task_ui(a);
                     }))
                     .child(Button::new("Delete a Task", |a| {
                         println!("Delete a task");
@@ -205,7 +206,10 @@ fn view_task_manager(app: &mut Cursive) {
     );
 }
 
-fn add_task(app: &mut Cursive) {
+fn add_task_ui(app: &mut Cursive) {
+    let locale: &LanguageTexts = &app.user_data::<Session>().unwrap().locale.clone();
+    let title: String = locale.try_get_text("title").unwrap().get_string().unwrap();
+    let desc: String = locale.try_get_text("description").unwrap().get_string().unwrap();
 
     app.add_layer(
         Dialog::new()
@@ -214,12 +218,12 @@ fn add_task(app: &mut Cursive) {
                 LinearLayout::vertical()
                     .child(
                         LinearLayout::horizontal()
-                            .child(PaddedView::lrtb(1, 7, 0, 1, TextView::new("Title:")))
+                            .child(PaddedView::lrtb(1, 7, 0, 1, TextView::new(title)))
                             .child(PaddedView::lrtb(1, 1, 0, 1, EditView::new().with_name("title_entry").fixed_width(20)))
                     )
                     .child(
                         LinearLayout::horizontal()
-                            .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new("Description:")))
+                            .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new(desc)))
                             .child(PaddedView::lrtb(1, 1, 0, 1, EditView::new().with_name("desc_entry").fixed_width(20)))
                     )
             )
@@ -239,3 +243,16 @@ fn add_task(app: &mut Cursive) {
             }),
     )
 }
+
+// TODO: Finish implementation
+fn delete_task_ui(app: &mut Cursive) {
+    let locale: &LanguageTexts = &app.user_data::<Session>().unwrap().locale.clone();
+    let db: &Database = &app.user_data::<Session>().unwrap().db;
+    let tasks: Vec<Task> = match task::get_task_list(db) {
+        Ok(list) => list,
+        Err(_) => panic!("Error fetching list of tasks"),
+    };
+
+}
+
+
