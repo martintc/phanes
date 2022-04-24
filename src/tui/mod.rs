@@ -184,19 +184,19 @@ fn view_task_manager(app: &mut Cursive) {
             .title("Phanes - View Tasks Menu")
             .content(
                 LinearLayout::vertical()
-                    .child(Button::new("Add a Task", |a| {
+                    .child(Button::new(locale.try_get_text("add_task").unwrap().get_string().unwrap(), |a| {
                         add_task_ui(a);
                     }))
-                    .child(Button::new("Delete a Task", |a| {
-                        println!("Delete a task");
+                    .child(Button::new(locale.try_get_text("del_task").unwrap().get_string().unwrap(), |a| {
+                        delete_task_ui(a);
                     }))
-                    .child(Button::new("Move task to in-progress", |a| {
+                    .child(Button::new(locale.try_get_text("move_in_prog").unwrap().get_string().unwrap(), |a| {
                         println!("Move to in-progress");
                     }))
-                    .child(Button::new("Move task to closed", |a| {
+                    .child(Button::new(locale.try_get_text("move_to_closed").unwrap().get_string().unwrap(), |a| {
                         println!("Move to closed");
                     }))
-                    .child(Button::new("Move task to closed", |a| {
+                    .child(Button::new(locale.try_get_text("assign_task_cat").unwrap().get_string().unwrap(), |a| {
                         println!("Assign task a category");
                     }))
             )
@@ -244,15 +244,38 @@ fn add_task_ui(app: &mut Cursive) {
     )
 }
 
-// TODO: Finish implementation
 fn delete_task_ui(app: &mut Cursive) {
     let locale: &LanguageTexts = &app.user_data::<Session>().unwrap().locale.clone();
-    let db: &Database = &app.user_data::<Session>().unwrap().db;
-    let tasks: Vec<Task> = match task::get_task_list(db) {
+    let d: &Database = &app.user_data::<Session>().unwrap().db;
+    let tasks: Vec<Task> = match task::get_task_list(d) {
         Ok(list) => list,
         Err(_) => panic!("Error fetching list of tasks"),
     };
 
+    let mut selection = SelectView::new();
+    for task in tasks.iter() {
+        selection.add_item(task.get_task_title(), task.get_task_id());
+    }
+
+    selection.set_on_submit(|a, task| {
+        del_task(a, task);
+        a.pop_layer();
+    });
+
+    app.add_layer(
+        Dialog::new()
+                  .title(locale.try_get_text("del_task").unwrap().get_string().unwrap())
+                  .content(selection)
+                  .button(locale.try_get_text("return").unwrap().get_string().unwrap(), |a| {
+                      a.pop_layer();
+                  }),
+    );
+
 }
 
 
+
+fn del_task(app: &mut Cursive, id: &i64) {
+    let db: &Database = &app.user_data::<Session>().unwrap().db;
+    task::remove_task(db, *id);
+}
