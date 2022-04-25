@@ -26,6 +26,9 @@ description = "Description:"
 category = "Category:"
 status = "Status:"
 
+select_task = "Select a task"
+select_cat = "Select a category"
+
 return_menu = "Return to main menu"
 return = "Return"
 quit = "Quit"

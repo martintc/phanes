@@ -14,6 +14,7 @@ use crate::datamanager::db::*;
 use crate::datamanager::status;
 use crate::datamanager::task::Task;
 use crate::datamanager::*;
+use crate::datamanager::Category;
 
 struct Session {
     pub db: Database,
@@ -496,4 +497,27 @@ fn move_closed_task_ui(app: &mut Cursive) {
 fn move_closed(app: &mut Cursive, id: &i64) {
     let db: &Database = &app.user_data::<Session>().unwrap().db;
     task::change_task_status(db, *id, 3);
+}
+
+// TODO: Implement with potentially radio buttons
+fn assign_task_category_ui(app: &mut Cursive) {
+    let locale: &LanguageTexts = &app.user_data::<Session>().unwrap().locale.clone();
+    let d: &Database = &app.user_data::<Session>().unwrap().db;
+
+    let tasks: Vec<Task> = task::get_tasks_by_category(d, 1).unwrap();
+    let categories: Vec<Category> = category::get_all_categories(d).unwrap();
+
+    let mut select_task = SelectView::new();
+    let mut select_cat = SelectView::new();
+
+    for task in tasks.iter() {
+        select_task.add_item(task.get_task_title(), task.get_task_id());
+    }
+
+    for cat in categories.iter() {
+        select_cat.add_item(cat.get_name(), cat.get_id());
+    }
+
+    
+
 }

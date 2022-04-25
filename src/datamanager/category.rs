@@ -13,6 +13,14 @@ impl Category {
         println!("ID: {}", self.id);
         println!("\tName: {}", self.name);
     }
+
+    pub fn get_id(&self) -> i64 {
+        self.id
+    }
+
+    pub fn get_name(&self) -> &str {
+        self.name.as_str()
+    }
 }
 
 pub fn add_category(db: &Database, name: String) -> sqlite::Result<String> {
