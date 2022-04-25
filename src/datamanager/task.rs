@@ -149,7 +149,8 @@ pub fn get_task_title(db: &Database, title: String) -> sqlite::Result<Vec<Task>>
 
 pub fn get_task_list(db: &Database) -> sqlite::Result<Vec<Task>> {
     let connection = sqlite::open(db.get_path())?;
-    let mut stmt = connection.prepare("select ID, TITLE, DESCRIPTION, STATUS, CATEGORY from tasks;")?;
+    let mut stmt =
+        connection.prepare("select ID, TITLE, DESCRIPTION, STATUS, CATEGORY from tasks;")?;
     let mut results: Vec<Task> = Vec::new();
     while let State::Row = stmt.next()? {
         let task = Task {

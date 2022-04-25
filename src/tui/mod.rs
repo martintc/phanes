@@ -1,16 +1,18 @@
 use std::borrow::Borrow;
 
 use cursive::traits::*;
-use cursive::views::{Button, Dialog, LinearLayout, SelectView, EditView, TextView, PaddedView, TextArea};
+use cursive::views::{
+    Button, Dialog, EditView, LinearLayout, PaddedView, SelectView, TextArea, TextView,
+};
 use cursive::{Cursive, CursiveExt};
 
-use languages_rs::{Config, Languages, LanguageTexts, load, Value};
+use languages_rs::{load, Config, LanguageTexts, Languages, Value};
 
 use sys_locale::get_locale;
 
 use crate::datamanager::db::*;
-use crate::datamanager::task::Task;
 use crate::datamanager::status;
+use crate::datamanager::task::Task;
 use crate::datamanager::*;
 
 struct Session {
@@ -36,20 +38,48 @@ pub fn run_app() {
 
     app.add_layer(
         Dialog::new()
-            .title(locale.try_get_text("main_title").unwrap().get_string().unwrap())
+            .title(
+                locale
+                    .try_get_text("main_title")
+                    .unwrap()
+                    .get_string()
+                    .unwrap(),
+            )
             .content(
-            LinearLayout::vertical()
-                .child(Button::new(locale.try_get_text("view_task_menu").unwrap().get_string().unwrap(), |a| {
-                    view_tasks_menu(a);
-                }))
-                .child(Button::new(locale.try_get_text("manage_task").unwrap().get_string().unwrap(), |a| {
-                    view_task_manager(a);
-                }))
-                .child(Button::new(locale.try_get_text("manage_categories").unwrap().get_string().unwrap(), |a| {
-                    println!("manage Categories")
-                }))
-                .child(Button::new(locale.try_get_text("quit").unwrap().get_string().unwrap(), |a| a.quit())),
-        ),
+                LinearLayout::vertical()
+                    .child(Button::new(
+                        locale
+                            .try_get_text("view_task_menu")
+                            .unwrap()
+                            .get_string()
+                            .unwrap(),
+                        |a| {
+                            view_tasks_menu(a);
+                        },
+                    ))
+                    .child(Button::new(
+                        locale
+                            .try_get_text("manage_task")
+                            .unwrap()
+                            .get_string()
+                            .unwrap(),
+                        |a| {
+                            view_task_manager(a);
+                        },
+                    ))
+                    .child(Button::new(
+                        locale
+                            .try_get_text("manage_categories")
+                            .unwrap()
+                            .get_string()
+                            .unwrap(),
+                        |a| println!("manage Categories"),
+                    ))
+                    .child(Button::new(
+                        locale.try_get_text("quit").unwrap().get_string().unwrap(),
+                        |a| a.quit(),
+                    )),
+            ),
     );
 
     app.run();
@@ -60,7 +90,7 @@ fn set_up_locale() -> LanguageTexts {
     let mut configuration: Config = Config::default().unwrap();
     configuration.add_language(locale.clone()).unwrap();
     let mut texts: Languages = load(configuration).unwrap();
-    let locale_text : LanguageTexts = match texts.try_get_language(locale.as_str()) {
+    let locale_text: LanguageTexts = match texts.try_get_language(locale.as_str()) {
         Ok(loc) => loc,
         Err(_) => texts.try_get_language("en-US").unwrap(),
     };
@@ -69,12 +99,30 @@ fn set_up_locale() -> LanguageTexts {
 
 fn view_tasks_menu(app: &mut Cursive) {
     let locale: &LanguageTexts = &app.user_data::<Session>().unwrap().locale.clone();
-    let view_open_label: String = locale.try_get_text("view_all_open").unwrap().get_string().unwrap();
-    let view_inprogress_label: String = locale.try_get_text("view_all_in_progress").unwrap().get_string().unwrap();
-    let view_closed_label: String = locale.try_get_text("view_all_closed").unwrap().get_string().unwrap();
+    let view_open_label: String = locale
+        .try_get_text("view_all_open")
+        .unwrap()
+        .get_string()
+        .unwrap();
+    let view_inprogress_label: String = locale
+        .try_get_text("view_all_in_progress")
+        .unwrap()
+        .get_string()
+        .unwrap();
+    let view_closed_label: String = locale
+        .try_get_text("view_all_closed")
+        .unwrap()
+        .get_string()
+        .unwrap();
     app.add_layer(
         Dialog::new()
-            .title(locale.try_get_text("view_tasks_title").unwrap().get_string().unwrap())
+            .title(
+                locale
+                    .try_get_text("view_tasks_title")
+                    .unwrap()
+                    .get_string()
+                    .unwrap(),
+            )
             .content(
                 LinearLayout::vertical()
                     .child(Button::new(view_open_label, |a| {
@@ -85,7 +133,7 @@ fn view_tasks_menu(app: &mut Cursive) {
                     }))
                     .child(Button::new(view_closed_label, |a| {
                         view_tasks_lists(a, 3, "Closed Tasks");
-                    }))
+                    })),
             )
             .button("Return to main menu", |a| {
                 a.pop_layer();
@@ -142,33 +190,55 @@ fn view_task(app: &mut Cursive, id: &i64) {
     };
 
     let title: String = locale.try_get_text("title").unwrap().get_string().unwrap();
-    let desc: String = locale.try_get_text("description").unwrap().get_string().unwrap();
+    let desc: String = locale
+        .try_get_text("description")
+        .unwrap()
+        .get_string()
+        .unwrap();
     let status: String = locale.try_get_text("status").unwrap().get_string().unwrap();
-    let category: String = locale.try_get_text("category").unwrap().get_string().unwrap();
+    let category: String = locale
+        .try_get_text("category")
+        .unwrap()
+        .get_string()
+        .unwrap();
 
     app.add_layer(
         Dialog::new()
             .title(task.get_task_title())
             .content(
-            LinearLayout::vertical()
+                LinearLayout::vertical()
                     .child(
-                    LinearLayout::horizontal()
-                        .child(PaddedView::lrtb(1, 7, 0, 1, TextView::new(title)))
-                        .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new(task.get_task_title()))),
+                        LinearLayout::horizontal()
+                            .child(PaddedView::lrtb(1, 7, 0, 1, TextView::new(title)))
+                            .child(PaddedView::lrtb(
+                                1,
+                                1,
+                                0,
+                                1,
+                                TextView::new(task.get_task_title()),
+                            )),
                     )
                     .child(
                         LinearLayout::horizontal()
-                        .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new(desc)))
-                        .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new(task.get_task_desc())))
+                            .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new(desc)))
+                            .child(PaddedView::lrtb(
+                                1,
+                                1,
+                                0,
+                                1,
+                                TextView::new(task.get_task_desc()),
+                            )),
                     )
-                    .child(LinearLayout::horizontal()
-                        .child(PaddedView::lrtb(1, 6, 0, 1, TextView::new(status)))
-                        .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new(status_name)))
+                    .child(
+                        LinearLayout::horizontal()
+                            .child(PaddedView::lrtb(1, 6, 0, 1, TextView::new(status)))
+                            .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new(status_name))),
                     )
-                    .child(LinearLayout::horizontal()
-                        .child(PaddedView::lrtb(1, 5, 0, 1, TextView::new(category)))
-                        .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new(cat_name)))
-                    )
+                    .child(
+                        LinearLayout::horizontal()
+                            .child(PaddedView::lrtb(1, 5, 0, 1, TextView::new(category)))
+                            .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new(cat_name))),
+                    ),
             )
             .button("Close display", |a| {
                 a.pop_layer();
@@ -184,32 +254,78 @@ fn view_task_manager(app: &mut Cursive) {
             .title("Phanes - View Tasks Menu")
             .content(
                 LinearLayout::vertical()
-                    .child(Button::new(locale.try_get_text("add_task").unwrap().get_string().unwrap(), |a| {
-                        add_task_ui(a);
-                    }))
-                    .child(Button::new(locale.try_get_text("del_task").unwrap().get_string().unwrap(), |a| {
-                        delete_task_ui(a);
-                    }))
-                    .child(Button::new(locale.try_get_text("move_in_prog").unwrap().get_string().unwrap(), |a| {
-                        move_in_prog_task_ui(a);
-                    }))
-                    .child(Button::new(locale.try_get_text("move_to_closed").unwrap().get_string().unwrap(), |a| {
-                        move_closed_task_ui(a);
-                    }))
-                    .child(Button::new(locale.try_get_text("assign_task_cat").unwrap().get_string().unwrap(), |a| {
-                        println!("Assign task a category");
-                    }))
+                    .child(Button::new(
+                        locale
+                            .try_get_text("add_task")
+                            .unwrap()
+                            .get_string()
+                            .unwrap(),
+                        |a| {
+                            add_task_ui(a);
+                        },
+                    ))
+                    .child(Button::new(
+                        locale
+                            .try_get_text("del_task")
+                            .unwrap()
+                            .get_string()
+                            .unwrap(),
+                        |a| {
+                            delete_task_ui(a);
+                        },
+                    ))
+                    .child(Button::new(
+                        locale
+                            .try_get_text("move_in_prog")
+                            .unwrap()
+                            .get_string()
+                            .unwrap(),
+                        |a| {
+                            move_in_prog_task_ui(a);
+                        },
+                    ))
+                    .child(Button::new(
+                        locale
+                            .try_get_text("move_to_closed")
+                            .unwrap()
+                            .get_string()
+                            .unwrap(),
+                        |a| {
+                            move_closed_task_ui(a);
+                        },
+                    ))
+                    .child(Button::new(
+                        locale
+                            .try_get_text("assign_task_cat")
+                            .unwrap()
+                            .get_string()
+                            .unwrap(),
+                        |a| {
+                            println!("Assign task a category");
+                        },
+                    )),
             )
-            .button(locale.try_get_text("return_menu").unwrap().get_string().unwrap(), |a| {
-                a.pop_layer();
-            }),
+            .button(
+                locale
+                    .try_get_text("return_menu")
+                    .unwrap()
+                    .get_string()
+                    .unwrap(),
+                |a| {
+                    a.pop_layer();
+                },
+            ),
     );
 }
 
 fn add_task_ui(app: &mut Cursive) {
     let locale: &LanguageTexts = &app.user_data::<Session>().unwrap().locale.clone();
     let title: String = locale.try_get_text("title").unwrap().get_string().unwrap();
-    let desc: String = locale.try_get_text("description").unwrap().get_string().unwrap();
+    let desc: String = locale
+        .try_get_text("description")
+        .unwrap()
+        .get_string()
+        .unwrap();
 
     app.add_layer(
         Dialog::new()
@@ -219,24 +335,36 @@ fn add_task_ui(app: &mut Cursive) {
                     .child(
                         LinearLayout::horizontal()
                             .child(PaddedView::lrtb(1, 7, 0, 1, TextView::new(title)))
-                            .child(PaddedView::lrtb(1, 1, 0, 1, EditView::new().with_name("title_entry").fixed_width(20)))
+                            .child(PaddedView::lrtb(
+                                1,
+                                1,
+                                0,
+                                1,
+                                EditView::new().with_name("title_entry").fixed_width(20),
+                            )),
                     )
                     .child(
                         LinearLayout::horizontal()
                             .child(PaddedView::lrtb(1, 1, 0, 1, TextView::new(desc)))
-                            .child(PaddedView::lrtb(1, 1, 0, 1, EditView::new().with_name("desc_entry").fixed_width(20)))
-                    )
+                            .child(PaddedView::lrtb(
+                                1,
+                                1,
+                                0,
+                                1,
+                                EditView::new().with_name("desc_entry").fixed_width(20),
+                            )),
+                    ),
             )
             .button("Return", |a| {
                 a.pop_layer();
             })
             .button("Submit", |a| {
-                let title = a.call_on_name("title_entry", |view: &mut EditView| {
-                    view.get_content()
-                }).unwrap();
-                let desc = a.call_on_name("desc_entry", |view: &mut EditView| {
-                   view.get_content()
-                }).unwrap();
+                let title = a
+                    .call_on_name("title_entry", |view: &mut EditView| view.get_content())
+                    .unwrap();
+                let desc = a
+                    .call_on_name("desc_entry", |view: &mut EditView| view.get_content())
+                    .unwrap();
                 let db: &Database = &a.user_data::<Session>().unwrap().db;
                 task::add_tasks(db, title.to_string(), desc.to_string(), 1, 1);
                 a.pop_layer();
@@ -264,16 +392,22 @@ fn delete_task_ui(app: &mut Cursive) {
 
     app.add_layer(
         Dialog::new()
-                  .title(locale.try_get_text("del_task").unwrap().get_string().unwrap())
-                  .content(selection)
-                  .button(locale.try_get_text("return").unwrap().get_string().unwrap(), |a| {
-                      a.pop_layer();
-                  }),
+            .title(
+                locale
+                    .try_get_text("del_task")
+                    .unwrap()
+                    .get_string()
+                    .unwrap(),
+            )
+            .content(selection)
+            .button(
+                locale.try_get_text("return").unwrap().get_string().unwrap(),
+                |a| {
+                    a.pop_layer();
+                },
+            ),
     );
-
 }
-
-
 
 fn del_task(app: &mut Cursive, id: &i64) {
     let db: &Database = &app.user_data::<Session>().unwrap().db;
@@ -300,16 +434,22 @@ fn move_in_prog_task_ui(app: &mut Cursive) {
 
     app.add_layer(
         Dialog::new()
-                  .title(locale.try_get_text("move_in_prog").unwrap().get_string().unwrap())
-                  .content(selection)
-                  .button(locale.try_get_text("return").unwrap().get_string().unwrap(), |a| {
-                      a.pop_layer();
-                  }),
+            .title(
+                locale
+                    .try_get_text("move_in_prog")
+                    .unwrap()
+                    .get_string()
+                    .unwrap(),
+            )
+            .content(selection)
+            .button(
+                locale.try_get_text("return").unwrap().get_string().unwrap(),
+                |a| {
+                    a.pop_layer();
+                },
+            ),
     );
-
 }
-
-
 
 fn move_in_prog(app: &mut Cursive, id: &i64) {
     let db: &Database = &app.user_data::<Session>().unwrap().db;
@@ -336,16 +476,22 @@ fn move_closed_task_ui(app: &mut Cursive) {
 
     app.add_layer(
         Dialog::new()
-                  .title(locale.try_get_text("move_to_closed").unwrap().get_string().unwrap())
-                  .content(selection)
-                  .button(locale.try_get_text("return").unwrap().get_string().unwrap(), |a| {
-                      a.pop_layer();
-                  }),
+            .title(
+                locale
+                    .try_get_text("move_to_closed")
+                    .unwrap()
+                    .get_string()
+                    .unwrap(),
+            )
+            .content(selection)
+            .button(
+                locale.try_get_text("return").unwrap().get_string().unwrap(),
+                |a| {
+                    a.pop_layer();
+                },
+            ),
     );
-
 }
-
-
 
 fn move_closed(app: &mut Cursive, id: &i64) {
     let db: &Database = &app.user_data::<Session>().unwrap().db;
