@@ -1,3 +1,4 @@
+#[derive(Clone)]
 pub struct Database {
     pub path: String,
 }

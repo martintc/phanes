@@ -2,7 +2,7 @@ use std::borrow::Borrow;
 
 use cursive::traits::*;
 use cursive::views::{
-    Button, Dialog, EditView, LinearLayout, PaddedView, SelectView, TextArea, TextView,
+    Button, Dialog, EditView, LinearLayout, PaddedView, SelectView, TextArea, TextView, RadioGroup,
 };
 use cursive::{Cursive, CursiveExt};
 
@@ -12,9 +12,9 @@ use sys_locale::get_locale;
 
 use crate::datamanager::db::*;
 use crate::datamanager::status;
-use crate::datamanager::task::Task;
+use crate::datamanager::task::{Task, change_task_category};
 use crate::datamanager::*;
-use crate::datamanager::Category;
+use crate::datamanager::category::Category;
 
 struct Session {
     pub db: Database,
@@ -302,7 +302,7 @@ fn view_task_manager(app: &mut Cursive) {
                             .get_string()
                             .unwrap(),
                         |a| {
-                            println!("Assign task a category");
+                            assign_task_category_ui(a);
                         },
                     )),
             )
@@ -507,17 +507,41 @@ fn assign_task_category_ui(app: &mut Cursive) {
     let tasks: Vec<Task> = task::get_tasks_by_category(d, 1).unwrap();
     let categories: Vec<Category> = category::get_all_categories(d).unwrap();
 
-    let mut select_task = SelectView::new();
-    let mut select_cat = SelectView::new();
+    let mut select_task: RadioGroup<i64> = RadioGroup::new();
+    let mut select_cat: RadioGroup<i64> = RadioGroup::new();
 
+    // for task in tasks.iter() {
+    //     select_task.button(task.get_task_id(), task.get_task_title());
+    // }
+
+    let mut task_layout = LinearLayout::vertical();
     for task in tasks.iter() {
-        select_task.add_item(task.get_task_title(), task.get_task_id());
+        task_layout.add_child(select_task.button(task.get_task_id(), task.get_task_title()));
     }
 
+    let mut cat_layout = LinearLayout::vertical();
     for cat in categories.iter() {
-        select_cat.add_item(cat.get_name(), cat.get_id());
+        cat_layout.add_child(select_cat.button(cat.get_id(), cat.get_name()));
     }
 
-    
+    app.add_layer(
+        Dialog::new()
+            .content(
+                LinearLayout::horizontal()
+                    .child(task_layout)
+                    .child(cat_layout)
+            )
+            .button(locale.try_get_text("select").unwrap().get_string().unwrap(), move |a| {
+                let d: &Database = &a.user_data::<Session>().unwrap().db;
+                let task = select_task.selection().clone();
+                let cat = select_cat.selection().clone();
+                task::change_task_category(d, *task, *cat);
+                a.pop_layer();
+                a.pop_layer();
+            })
+            .button(locale.try_get_text("return").unwrap().get_string().unwrap(), |a| {
+                a.pop_layer();
+            })
+    );
 
 }
