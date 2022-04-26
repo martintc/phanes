@@ -7,6 +7,10 @@ edition = "2021"
 
 [dependencies]
 sqlite = "0.26.0"
-cursive = "0.17.0"
 languages-rs = { version = "0.2.0", features = ["with-toml"] }
 sys-locale = "0.2.0"
+
+[dependencies.cursive]
+version = "0.17.0"
+default-features = false
+features = ["crossterm-backend"]
