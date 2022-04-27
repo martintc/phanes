@@ -554,10 +554,10 @@ fn view_category_manager(app: &mut Cursive) {
 	    .content(
 		LinearLayout::vertical()
 		    .child(Button::new(locale.try_get_text("add_cat").unwrap().get_string().unwrap(), |a| {
-			println!("add category");
+            add_category_tui(a);
 		    }))
 		    .child(Button::new(locale.try_get_text("del_cat").unwrap().get_string().unwrap(), |a| {
-			println!("delete category");
+            del_category_tui(a);
 		    }))
 		    .child(Button::new(locale.try_get_text("list_cat").unwrap().get_string().unwrap(), |a| {
 			println!("list categoryes");
@@ -567,4 +567,113 @@ fn view_category_manager(app: &mut Cursive) {
 		a.pop_layer();
 	    })
     );
+}
+
+fn add_category_tui(app: &mut Cursive) {
+    let locale: &LanguageTexts = &app.user_data::<Session>().unwrap().locale.clone();
+    app.add_layer(
+        Dialog::new()
+            .title(locale.try_get_text("add_cat").unwrap().get_string().unwrap())
+            .content(
+                EditView::new()
+                    .with_name("name"),
+            )
+            .button(locale.try_get_text("return").unwrap().get_string().unwrap(), |a| {
+                a.pop_layer();
+            })
+            .button(locale.try_get_text("submit").unwrap().get_string().unwrap(), |a| {
+                let name = a.call_on_name("name", |view: &mut EditView| {
+                    view.get_content()
+                }).unwrap();
+                add_cat(a, &name);
+            })
+    );
+}
+
+fn add_cat(app: &mut Cursive, name: &str) {
+    let db: &Database = &app.user_data::<Session>().unwrap().db;
+    match  category::add_category(db, name.to_string()) {
+        Ok(_) => {
+            success_pop_up(app);
+        },
+        Err(_) => {
+            failure_pop_up(app);
+        },
+    }
+}
+
+fn del_category_tui(app: &mut Cursive) {
+    let locale: &LanguageTexts = &app.user_data::<Session>().unwrap().locale.clone();
+    let d: &Database = &app.user_data::<Session>().unwrap().db;
+    let categories = match category::get_all_categories(d) {
+        Ok(list) => list,
+        Err(_) => panic!("Error fetching list of tasks"),
+    };
+
+    let mut selection = SelectView::new();
+    for cat in categories.iter() {
+        selection.add_item(cat.get_name(), cat.get_id());
+    }
+
+    selection.set_on_submit(|a, cat| {
+        del_cat(a, cat);
+    });
+
+    app.add_layer(
+        Dialog::new()
+            .title(
+                locale
+                    .try_get_text("del_cat")
+                    .unwrap()
+                    .get_string()
+                    .unwrap(),
+            )
+            .content(selection)
+            .button(
+                locale.try_get_text("return").unwrap().get_string().unwrap(),
+                |a| {
+                    a.pop_layer();
+                },
+            ),
+    );
+}
+
+fn del_cat(app: &mut Cursive, id: &i64) {
+    let db: &Database = &app.user_data::<Session>().unwrap().db;
+    match  category::remove_category(db, *id) {
+        Ok(_) => {
+            success_pop_up(app);
+        },
+        Err(_) => {
+            failure_pop_up(app);
+        }
+    }
+}
+
+fn success_pop_up(app: &mut Cursive) {
+    let locale: &LanguageTexts = &app.user_data::<Session>().unwrap().locale.clone();
+    app.add_layer(
+        Dialog::new()
+            .content(
+                TextView::new(locale.try_get_text("success").unwrap().get_string().unwrap())
+            )
+            .button(locale.try_get_text("return").unwrap().get_string().unwrap(), |a| {
+                a.pop_layer();
+                a.pop_layer();
+            })
+    )
+}
+
+fn failure_pop_up(app: &mut Cursive) {
+    let locale: &LanguageTexts = &app.user_data::<Session>().unwrap().locale.clone();
+    app.add_layer(
+        Dialog::new()
+            .content(
+                TextView::new(locale.try_get_text("failure").unwrap().get_string().unwrap())
+            )
+            .button(locale.try_get_text("return").unwrap().get_string().unwrap(), |a| {
+                a.pop_layer();
+                a.pop_layer();
+            })
+    )
 }

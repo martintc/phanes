@@ -32,6 +32,12 @@ add_cat = "Add a category"
 del_cat = "Delete a category"
 list_cat = "List Categories"
 
+submit = "Submit"
+canel = "Cancel"
+
+success = "Successful Operation Complete"
+failure = "Operation failed to complete"
+
 return_menu = "Return to main menu"
 return = "Return"
 quit = "Quit"
