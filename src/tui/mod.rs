@@ -445,7 +445,6 @@ fn move_in_prog_task_ui(app: &mut Cursive) {
 
     selection.set_on_submit(|a, task| {
         move_in_prog(a, task);
-        a.pop_layer();
     });
 
     app.add_layer(
@@ -494,7 +493,6 @@ fn move_closed_task_ui(app: &mut Cursive) {
 
     selection.set_on_submit(|a, task| {
         move_closed(a, task);
-        a.pop_layer();
     });
 
     app.add_layer(
