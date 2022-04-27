@@ -28,6 +28,10 @@ select_task = "Select a task"
 select_cat = "Select a category"
 select = "Select"
 
+add_cat = "Add a category"
+del_cat = "Delete a category"
+list_cat = "List Categories"
+
 return_menu = "Return to main menu"
 return = "Return"
 quit = "Quit"

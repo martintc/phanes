@@ -74,7 +74,9 @@ pub fn run_app() {
                             .unwrap()
                             .get_string()
                             .unwrap(),
-                        |a| println!("manage Categories"),
+                        |a| {
+			    view_category_manager(a);
+			},
                     ))
                     .child(Button::new(
                         locale.try_get_text("quit").unwrap().get_string().unwrap(),
@@ -499,7 +501,6 @@ fn move_closed(app: &mut Cursive, id: &i64) {
     task::change_task_status(db, *id, 3);
 }
 
-// TODO: Implement with potentially radio buttons
 fn assign_task_category_ui(app: &mut Cursive) {
     let locale: &LanguageTexts = &app.user_data::<Session>().unwrap().locale.clone();
     let d: &Database = &app.user_data::<Session>().unwrap().db;
@@ -543,5 +544,27 @@ fn assign_task_category_ui(app: &mut Cursive) {
                 a.pop_layer();
             })
     );
+}
 
+fn view_category_manager(app: &mut Cursive) {
+    let locale: &LanguageTexts = &app.user_data::<Session>().unwrap().locale.clone();
+    app.add_layer(
+	Dialog::new()
+	    .title(locale.try_get_text("manage_categories").unwrap().get_string().unwrap())
+	    .content(
+		LinearLayout::vertical()
+		    .child(Button::new(locale.try_get_text("add_cat").unwrap().get_string().unwrap(), |a| {
+			println!("add category");
+		    }))
+		    .child(Button::new(locale.try_get_text("del_cat").unwrap().get_string().unwrap(), |a| {
+			println!("delete category");
+		    }))
+		    .child(Button::new(locale.try_get_text("list_cat").unwrap().get_string().unwrap(), |a| {
+			println!("list categoryes");
+		    }))
+	    )
+	    .button(locale.try_get_text("return").unwrap().get_string().unwrap(), |a| {
+		a.pop_layer();
+	    })
+    );
 }
