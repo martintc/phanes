@@ -14,7 +14,7 @@ use crate::datamanager::db::*;
 use crate::datamanager::status;
 use crate::datamanager::task::{Task, change_task_category};
 use crate::datamanager::*;
-use crate::datamanager::category::Category;
+use crate::datamanager::category::{Category, get_all_categories};
 
 struct Session {
     pub db: Database,
@@ -414,7 +414,14 @@ fn delete_task_ui(app: &mut Cursive) {
 
 fn del_task(app: &mut Cursive, id: &i64) {
     let db: &Database = &app.user_data::<Session>().unwrap().db;
-    task::remove_task(db, *id);
+    match task::remove_task(db, *id) {
+        Ok(_) => {
+            success_pop_up(app);
+        },
+        Err(_) => {
+            failure_pop_up(app);
+        }
+    }
 }
 
 fn move_in_prog_task_ui(app: &mut Cursive) {
@@ -456,7 +463,14 @@ fn move_in_prog_task_ui(app: &mut Cursive) {
 
 fn move_in_prog(app: &mut Cursive, id: &i64) {
     let db: &Database = &app.user_data::<Session>().unwrap().db;
-    task::change_task_status(db, *id, 2);
+    match task::change_task_status(db, *id, 2) {
+        Ok(_) => {
+            success_pop_up(app);
+        },
+        Err(_) => {
+            failure_pop_up(app);
+        }
+    }
 }
 
 fn move_closed_task_ui(app: &mut Cursive) {
@@ -498,7 +512,14 @@ fn move_closed_task_ui(app: &mut Cursive) {
 
 fn move_closed(app: &mut Cursive, id: &i64) {
     let db: &Database = &app.user_data::<Session>().unwrap().db;
-    task::change_task_status(db, *id, 3);
+    match task::change_task_status(db, *id, 3) {
+        Ok(_) => {
+            success_pop_up(app);
+        },
+        Err(_) => {
+            failure_pop_up(app);
+        }
+    }
 }
 
 fn assign_task_category_ui(app: &mut Cursive) {
@@ -560,7 +581,7 @@ fn view_category_manager(app: &mut Cursive) {
             del_category_tui(a);
 		    }))
 		    .child(Button::new(locale.try_get_text("list_cat").unwrap().get_string().unwrap(), |a| {
-			println!("list categoryes");
+            view_categories_tui(a);
 		    }))
 	    )
 	    .button(locale.try_get_text("return").unwrap().get_string().unwrap(), |a| {
@@ -648,6 +669,31 @@ fn del_cat(app: &mut Cursive, id: &i64) {
             failure_pop_up(app);
         }
     }
+}
+
+fn view_categories_tui(app: &mut Cursive) {
+    let locale: &LanguageTexts = &app.user_data::<Session>().unwrap().locale.clone();
+    let db: &Database = &app.user_data::<Session>().unwrap().db;
+
+    let categories = match get_all_categories(db) {
+        Ok(list) => list,
+        Err(_) => panic!("Issue getting a list of categories from database")
+    };
+
+    let mut cat_list = SelectView::new();
+    for cat in categories.iter() {
+        cat_list.add_item(cat.get_name(), cat.get_id());
+    }
+
+    app.add_layer(
+        Dialog::new()
+            .title(locale.try_get_text("list_cat").unwrap().get_string().unwrap())
+            .content(cat_list)
+            .button(locale.try_get_text("return").unwrap().get_string().unwrap(), |a| {
+                a.pop_layer();
+            })
+    )
+
 }
 
 fn success_pop_up(app: &mut Cursive) {
