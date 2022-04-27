@@ -369,8 +369,14 @@ fn add_task_ui(app: &mut Cursive) {
                     .call_on_name("desc_entry", |view: &mut EditView| view.get_content())
                     .unwrap();
                 let db: &Database = &a.user_data::<Session>().unwrap().db;
-                task::add_tasks(db, title.to_string(), desc.to_string(), 1, 1);
-                a.pop_layer();
+                match task::add_tasks(db, title.to_string(), desc.to_string(), 1, 1) {
+                    Ok(_) => {
+                        success_pop_up(a);
+                    },
+                    Err(_) => {
+                        failure_pop_up(a);
+                    }
+                }
             }),
     )
 }
@@ -557,9 +563,14 @@ fn assign_task_category_ui(app: &mut Cursive) {
                 let d: &Database = &a.user_data::<Session>().unwrap().db;
                 let task = select_task.selection().clone();
                 let cat = select_cat.selection().clone();
-                task::change_task_category(d, *task, *cat);
-                a.pop_layer();
-                a.pop_layer();
+                match task::change_task_category(d, *task, *cat) {
+                    Ok(_) => {
+                        success_pop_up(a);
+                    },
+                    Err(_) => {
+                        failure_pop_up(a);
+                    }
+                }
             })
             .button(locale.try_get_text("return").unwrap().get_string().unwrap(), |a| {
                 a.pop_layer();
