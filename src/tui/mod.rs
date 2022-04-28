@@ -2,7 +2,7 @@ use std::borrow::Borrow;
 
 use cursive::traits::*;
 use cursive::views::{
-    Button, Dialog, EditView, LinearLayout, PaddedView, SelectView, TextArea, TextView, RadioGroup,
+    Button, Dialog, EditView, LinearLayout, PaddedView, RadioGroup, SelectView, TextArea, TextView,
 };
 use cursive::{Cursive, CursiveExt};
 
@@ -10,11 +10,11 @@ use languages_rs::{load, Config, LanguageTexts, Languages, Value};
 
 use sys_locale::get_locale;
 
+use crate::datamanager::category::{get_all_categories, Category};
 use crate::datamanager::db::*;
 use crate::datamanager::status;
-use crate::datamanager::task::{Task, change_task_category};
+use crate::datamanager::task::{change_task_category, Task};
 use crate::datamanager::*;
-use crate::datamanager::category::{Category, get_all_categories};
 
 struct Session {
     pub db: Database,
@@ -27,7 +27,7 @@ pub fn run_app() {
     let mut app = Cursive::default();
 
     let db = Database {
-        path: String::from("/users/toddmartin/d.db"),
+        path: String::from(""),
     };
 
     app.set_user_data(Session {
@@ -37,6 +37,60 @@ pub fn run_app() {
 
     app.add_global_callback('q', Cursive::quit);
 
+    get_db_tui(&mut app);
+
+    app.run();
+}
+
+fn get_db_tui(app: &mut Cursive) {
+    let session: Session = app.take_user_data::<Session>().unwrap();
+    let locale: LanguageTexts = session.locale.clone();
+    app.add_layer(
+        Dialog::new()
+            .title(
+                locale
+                    .try_get_text("db_path")
+                    .unwrap()
+                    .get_string()
+                    .unwrap(),
+            )
+            .content(EditView::new().with_name("path")
+            )
+            .button(locale.try_get_text("existing_db").unwrap().get_string().unwrap(), |a| {
+                let p = a.call_on_name("path", |p: &mut EditView| {
+                    p.get_content()
+                }).unwrap();
+                let db: Database = Database::new(p.to_string());
+                a.set_user_data(Session {
+                    db: db,
+                    locale: set_up_locale(),
+                });
+
+                a.pop_layer();
+                main_menu_tui(a);
+
+            })
+            .button(locale.try_get_text("new_db").unwrap().get_string().unwrap(),|a| {
+                let p = a.call_on_name("path", |p: &mut EditView| {
+                    p.get_content()
+                }).unwrap();
+                let db: Database = match Database::create_new_db(p.to_string()) {
+                    Ok(db) => db,
+                    Err(_) => panic!("Can not create the database as requested"),
+                };
+                a.set_user_data(Session {
+                    db: db,
+                    locale: set_up_locale(),
+                });
+                a.pop_layer();
+                main_menu_tui(a);
+
+            })
+    )
+}
+
+fn main_menu_tui(app: &mut Cursive) {
+    let locale: &LanguageTexts = &app.user_data::<Session>().unwrap().locale.clone();
     app.add_layer(
         Dialog::new()
             .title(
@@ -75,8 +129,8 @@ pub fn run_app() {
                             .get_string()
                             .unwrap(),
                         |a| {
-			    view_category_manager(a);
-			},
+                            view_category_manager(a);
+                        },
                     ))
                     .child(Button::new(
                         locale.try_get_text("quit").unwrap().get_string().unwrap(),
@@ -84,8 +138,6 @@ pub fn run_app() {
                     )),
             ),
     );
-
-    app.run();
 }
 
 fn set_up_locale() -> LanguageTexts {
@@ -372,7 +424,7 @@ fn add_task_ui(app: &mut Cursive) {
                 match task::add_tasks(db, title.to_string(), desc.to_string(), 1, 1) {
                     Ok(_) => {
                         success_pop_up(a);
-                    },
+                    }
                     Err(_) => {
                         failure_pop_up(a);
                     }
@@ -423,7 +475,7 @@ fn del_task(app: &mut Cursive, id: &i64) {
     match task::remove_task(db, *id) {
         Ok(_) => {
             success_pop_up(app);
-        },
+        }
         Err(_) => {
             failure_pop_up(app);
         }
@@ -471,7 +523,7 @@ fn move_in_prog(app: &mut Cursive, id: &i64) {
     match task::change_task_status(db, *id, 2) {
         Ok(_) => {
             success_pop_up(app);
-        },
+        }
         Err(_) => {
             failure_pop_up(app);
         }
@@ -519,7 +571,7 @@ fn move_closed(app: &mut Cursive, id: &i64) {
     match task::change_task_status(db, *id, 3) {
         Ok(_) => {
             success_pop_up(app);
-        },
+        }
         Err(_) => {
             failure_pop_up(app);
         }
@@ -555,47 +607,83 @@ fn assign_task_category_ui(app: &mut Cursive) {
             .content(
                 LinearLayout::horizontal()
                     .child(task_layout)
-                    .child(cat_layout)
+                    .child(cat_layout),
             )
-            .button(locale.try_get_text("select").unwrap().get_string().unwrap(), move |a| {
-                let d: &Database = &a.user_data::<Session>().unwrap().db;
-                let task = select_task.selection().clone();
-                let cat = select_cat.selection().clone();
-                match task::change_task_category(d, *task, *cat) {
-                    Ok(_) => {
-                        success_pop_up(a);
-                    },
-                    Err(_) => {
-                        failure_pop_up(a);
+            .button(
+                locale.try_get_text("select").unwrap().get_string().unwrap(),
+                move |a| {
+                    let d: &Database = &a.user_data::<Session>().unwrap().db;
+                    let task = select_task.selection().clone();
+                    let cat = select_cat.selection().clone();
+                    match task::change_task_category(d, *task, *cat) {
+                        Ok(_) => {
+                            success_pop_up(a);
+                        }
+                        Err(_) => {
+                            failure_pop_up(a);
+                        }
                     }
-                }
-            })
-            .button(locale.try_get_text("return").unwrap().get_string().unwrap(), |a| {
-                a.pop_layer();
-            })
+                },
+            )
+            .button(
+                locale.try_get_text("return").unwrap().get_string().unwrap(),
+                |a| {
+                    a.pop_layer();
+                },
+            ),
     );
 }
 
 fn view_category_manager(app: &mut Cursive) {
     let locale: &LanguageTexts = &app.user_data::<Session>().unwrap().locale.clone();
     app.add_layer(
-	Dialog::new()
-	    .title(locale.try_get_text("manage_categories").unwrap().get_string().unwrap())
-	    .content(
-		LinearLayout::vertical()
-		    .child(Button::new(locale.try_get_text("add_cat").unwrap().get_string().unwrap(), |a| {
-            add_category_tui(a);
-		    }))
-		    .child(Button::new(locale.try_get_text("del_cat").unwrap().get_string().unwrap(), |a| {
-            del_category_tui(a);
-		    }))
-		    .child(Button::new(locale.try_get_text("list_cat").unwrap().get_string().unwrap(), |a| {
-            view_categories_tui(a);
-		    }))
-	    )
-	    .button(locale.try_get_text("return").unwrap().get_string().unwrap(), |a| {
-		a.pop_layer();
-	    })
+        Dialog::new()
+            .title(
+                locale
+                    .try_get_text("manage_categories")
+                    .unwrap()
+                    .get_string()
+                    .unwrap(),
+            )
+            .content(
+                LinearLayout::vertical()
+                    .child(Button::new(
+                        locale
+                            .try_get_text("add_cat")
+                            .unwrap()
+                            .get_string()
+                            .unwrap(),
+                        |a| {
+                            add_category_tui(a);
+                        },
+                    ))
+                    .child(Button::new(
+                        locale
+                            .try_get_text("del_cat")
+                            .unwrap()
+                            .get_string()
+                            .unwrap(),
+                        |a| {
+                            del_category_tui(a);
+                        },
+                    ))
+                    .child(Button::new(
+                        locale
+                            .try_get_text("list_cat")
+                            .unwrap()
+                            .get_string()
+                            .unwrap(),
+                        |a| {
+                            view_categories_tui(a);
+                        },
+                    )),
+            )
+            .button(
+                locale.try_get_text("return").unwrap().get_string().unwrap(),
+                |a| {
+                    a.pop_layer();
+                },
+            ),
     );
 }
 
@@ -603,32 +691,41 @@ fn add_category_tui(app: &mut Cursive) {
     let locale: &LanguageTexts = &app.user_data::<Session>().unwrap().locale.clone();
     app.add_layer(
         Dialog::new()
-            .title(locale.try_get_text("add_cat").unwrap().get_string().unwrap())
-            .content(
-                EditView::new()
-                    .with_name("name"),
+            .title(
+                locale
+                    .try_get_text("add_cat")
+                    .unwrap()
+                    .get_string()
+                    .unwrap(),
             )
-            .button(locale.try_get_text("return").unwrap().get_string().unwrap(), |a| {
-                a.pop_layer();
-            })
-            .button(locale.try_get_text("submit").unwrap().get_string().unwrap(), |a| {
-                let name = a.call_on_name("name", |view: &mut EditView| {
-                    view.get_content()
-                }).unwrap();
-                add_cat(a, &name);
-            })
+            .content(EditView::new().with_name("name"))
+            .button(
+                locale.try_get_text("return").unwrap().get_string().unwrap(),
+                |a| {
+                    a.pop_layer();
+                },
+            )
+            .button(
+                locale.try_get_text("submit").unwrap().get_string().unwrap(),
+                |a| {
+                    let name = a
+                        .call_on_name("name", |view: &mut EditView| view.get_content())
+                        .unwrap();
+                    add_cat(a, &name);
+                },
+            ),
     );
 }
 
 fn add_cat(app: &mut Cursive, name: &str) {
     let db: &Database = &app.user_data::<Session>().unwrap().db;
-    match  category::add_category(db, name.to_string()) {
+    match category::add_category(db, name.to_string()) {
         Ok(_) => {
             success_pop_up(app);
-        },
+        }
         Err(_) => {
             failure_pop_up(app);
-        },
+        }
     }
 }
 
@@ -670,10 +767,10 @@ fn del_category_tui(app: &mut Cursive) {
 
 fn del_cat(app: &mut Cursive, id: &i64) {
     let db: &Database = &app.user_data::<Session>().unwrap().db;
-    match  category::remove_category(db, *id) {
+    match category::remove_category(db, *id) {
         Ok(_) => {
             success_pop_up(app);
-        },
+        }
         Err(_) => {
             failure_pop_up(app);
         }
@@ -686,7 +783,7 @@ fn view_categories_tui(app: &mut Cursive) {
 
     let categories = match get_all_categories(db) {
         Ok(list) => list,
-        Err(_) => panic!("Issue getting a list of categories from database")
+        Err(_) => panic!("Issue getting a list of categories from database"),
     };
 
     let mut cat_list = SelectView::new();
@@ -696,26 +793,41 @@ fn view_categories_tui(app: &mut Cursive) {
 
     app.add_layer(
         Dialog::new()
-            .title(locale.try_get_text("list_cat").unwrap().get_string().unwrap())
+            .title(
+                locale
+                    .try_get_text("list_cat")
+                    .unwrap()
+                    .get_string()
+                    .unwrap(),
+            )
             .content(cat_list)
-            .button(locale.try_get_text("return").unwrap().get_string().unwrap(), |a| {
-                a.pop_layer();
-            })
+            .button(
+                locale.try_get_text("return").unwrap().get_string().unwrap(),
+                |a| {
+                    a.pop_layer();
+                },
+            ),
     )
-
 }
 
 fn success_pop_up(app: &mut Cursive) {
     let locale: &LanguageTexts = &app.user_data::<Session>().unwrap().locale.clone();
     app.add_layer(
         Dialog::new()
-            .content(
-                TextView::new(locale.try_get_text("success").unwrap().get_string().unwrap())
-            )
-            .button(locale.try_get_text("return").unwrap().get_string().unwrap(), |a| {
-                a.pop_layer();
-                a.pop_layer();
-            })
+            .content(TextView::new(
+                locale
+                    .try_get_text("success")
+                    .unwrap()
+                    .get_string()
+                    .unwrap(),
+            ))
+            .button(
+                locale.try_get_text("return").unwrap().get_string().unwrap(),
+                |a| {
+                    a.pop_layer();
+                    a.pop_layer();
+                },
+            ),
     )
 }
 
@@ -723,12 +835,19 @@ fn failure_pop_up(app: &mut Cursive) {
     let locale: &LanguageTexts = &app.user_data::<Session>().unwrap().locale.clone();
     app.add_layer(
         Dialog::new()
-            .content(
-                TextView::new(locale.try_get_text("failure").unwrap().get_string().unwrap())
-            )
-            .button(locale.try_get_text("return").unwrap().get_string().unwrap(), |a| {
-                a.pop_layer();
-                a.pop_layer();
-            })
+            .content(TextView::new(
+                locale
+                    .try_get_text("failure")
+                    .unwrap()
+                    .get_string()
+                    .unwrap(),
+            ))
+            .button(
+                locale.try_get_text("return").unwrap().get_string().unwrap(),
+                |a| {
+                    a.pop_layer();
+                    a.pop_layer();
+                },
+            ),
     )
 }
