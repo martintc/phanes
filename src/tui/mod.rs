@@ -86,6 +86,9 @@ fn get_db_tui(app: &mut Cursive) {
                 main_menu_tui(a);
 
             })
+	    .button(locale.try_get_text("quit").unwrap().get_string().unwrap(), |a| {
+		a.quit()
+	    })
     )
 }
 
