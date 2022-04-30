@@ -1,5 +1,6 @@
+#[derive(Clone)]
 pub struct Database {
-    path: String,
+    pub path: String,
 }
 
 impl Database {
@@ -14,11 +15,11 @@ impl Database {
         stmt.next()?;
         stmt = connection.prepare("CREATE TABLE status(ID INTEGER KEY, STATUS TEXT);")?;
         stmt.next()?;
-        stmt = connection.prepare("insert into status(STATUS) values('open')")?;
+        stmt = connection.prepare("insert into status(ID, STATUS) values(1, 'open')")?;
         stmt.next()?;
-        stmt = connection.prepare("insert into status(STATUS) values('in-progress')")?;
+        stmt = connection.prepare("insert into status(ID, STATUS) values(2, 'in-progress')")?;
         stmt.next()?;
-        stmt = connection.prepare("insert into status(STATUS) values('closed')")?;
+        stmt = connection.prepare("insert into status(ID, STATUS) values(3, 'closed')")?;
         stmt.next()?;
         stmt = connection.prepare("insert into category(NAME) values('none')")?;
         stmt.next()?;

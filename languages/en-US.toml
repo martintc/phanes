@@ -1,0 +1,51 @@
+main_title = "Phanes Main Menu"
+view_tasks_title = "Phanes View Tasks Menu"
+view_task_menu = "View Tasks Menu"
+manage_task = "Manage Task Menu"
+manage_categories = "Manage Categories"
+
+view_all_open = "View all open tasks"
+view_all_in_progress = "View all in-progress tasks"
+view_all_closed = "View all closed tasks"
+view_task_info = "View task information"
+
+open_tasks = "Open Tasks"
+inprogress_tasks = "In-progress Tasks"
+closed_tasks = "Closed Tasks"
+
+add_task = "Add a task"
+del_task = "Delete a task"
+move_in_prog = "Move task to in-progress"
+move_to_closed = "Move task to closed"
+assign_task_cat = "Assign task a category"
+
+title = "Title:"
+description = "Description:"
+category = "Category:"
+status = "Status:"
+
+select_task = "Select a task"
+select_cat = "Select a category"
+select = "Select"
+
+add_cat = "Add a category"
+del_cat = "Delete a category"
+list_cat = "List Categories"
+
+submit = "Submit"
+canel = "Cancel"
+
+success = "Successful Operation Complete"
+failure = "Operation failed to complete"
+
+db_path = "Database path"
+get_db_path = "Enter path to database"
+new = "new"
+new_db = "New database"
+get_new_db = "Enter path to new database"
+existing_db = "Existing database"
+get_existing_db = "Enter path to an existing database"
+
+return_menu = "Return to main menu"
+return = "Return"
+quit = "Quit"

@@ -13,9 +13,17 @@ impl Category {
         println!("ID: {}", self.id);
         println!("\tName: {}", self.name);
     }
+
+    pub fn get_id(&self) -> i64 {
+        self.id
+    }
+
+    pub fn get_name(&self) -> &str {
+        self.name.as_str()
+    }
 }
 
-pub fn add_category(db: &Database, name: String) -> sqlite::Result<String, > {
+pub fn add_category(db: &Database, name: String) -> sqlite::Result<String> {
     let connection = sqlite::open(db.get_path())?;
     let mut stmt = connection.prepare("insert into category(NAME) values(?);")?;
     stmt.bind(1, name.as_str())?;
@@ -35,8 +43,7 @@ pub fn get_category_name(db: &Database, id: i64) -> sqlite::Result<String> {
     let connection = sqlite::open(db.get_path())?;
     let mut stmt = connection.prepare("select NAME from category where ID=?")?;
     stmt.bind(1, id)?;
-    stmt
-        .next()?;
+    stmt.next()?;
     Ok(stmt.read::<String>(0))?
 }
 
@@ -48,10 +55,9 @@ pub fn remove_category(db: &Database, id: i64) -> sqlite::Result<String> {
     Ok(String::from("Success"))
 }
 
-pub fn get_all_categories(db: &Database) -> sqlite::Result<Vec<Category>, > {
+pub fn get_all_categories(db: &Database) -> sqlite::Result<Vec<Category>> {
     let connection = sqlite::open(db.get_path())?;
-    let mut stmt = connection
-        .prepare("select ID, NAME from category;")?;
+    let mut stmt = connection.prepare("select ID, NAME from category;")?;
     let mut results: Vec<Category> = Vec::new();
     while let State::Row = stmt.next()? {
         // let id: i64 = stmt.read::<i64>(0)?;

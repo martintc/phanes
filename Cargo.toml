@@ -2,8 +2,23 @@
 name = "phanes"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
+authors = ["Todd Martin <warfox@sdf.org>"]
+description = "Tool for locale personal task managent"
+readme = "README.md"
+homepage = "https://github.com/martintc/phanes"
+repository = "https://github.com/martintc/phanes"
+keywords = ["task", "manager"]
+categories = ["command-line-utilities"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 sqlite = "0.26.0"
+languages-rs = { version = "0.2.0", features = ["with-toml"] }
+sys-locale = "0.2.0"
+
+[dependencies.cursive]
+version = "0.17.0"
+default-features = false
+features = ["crossterm-backend"]
