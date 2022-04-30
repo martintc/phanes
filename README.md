@@ -11,3 +11,10 @@ Offers the ability to do localization. Currently supported languages:
 ### Contributing to localization
 
 Feel free to add a new language to localization with a PR. Simply copy one of the localization files in `/languages` and for every key, replace the value with the relevant translation.
+
+## Supported platforms
+
+- FreeBSD
+- MacOS
+- Linux
+- Windows
